@@ -13,6 +13,9 @@
   --border: rgba(6, 182, 212, 0.4);
   --primary: #06b6d4;
   --secondary: #0284c7;
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
   --text: #f0f9ff;
   --muted: #93c5fd;
   --glow: rgba(6, 182, 212, 0.6);
@@ -30,7 +33,6 @@ body {
   position: relative;
 }
 
-/* Futuristické kybernetické pozadí s částicemi a spoji */
 #bg-canvas {
   position: fixed;
   inset: 0;
@@ -143,7 +145,7 @@ h1 {
   text-align: justify;
 }
 
-/* Duel sekce */
+/* HERNÍ ARÉNA - DUEL */
 .duel-card {
   background: linear-gradient(180deg, rgba(2, 16, 36, 0.95), rgba(0, 3, 8, 0.98));
   border: 2px solid var(--primary);
@@ -160,7 +162,7 @@ h1 {
   margin-bottom: 12px;
   text-shadow: 0 0 20px var(--primary);
 }
-.duel-card p { color: var(--muted); margin-bottom: 30px; font-size: 1.1rem; }
+.duel-subtitle { color: var(--muted); margin-bottom: 30px; font-size: 1.1rem; }
 
 .nations {
   display: flex;
@@ -172,22 +174,28 @@ h1 {
 .nation-btn {
   background: rgba(6, 182, 212, 0.08);
   border: 1px solid var(--border);
-  padding: 14px 28px;
-  border-radius: 14px;
+  padding: 16px 28px;
+  border-radius: 16px;
   color: #fff;
   font-weight: 700;
   font-size: 1.05rem;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
+.nation-btn small { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
 .nation-btn:hover, .nation-btn.selected {
   background: var(--primary);
   color: var(--bg);
   box-shadow: 0 0 30px var(--primary);
   border-color: var(--primary);
 }
+.nation-btn.selected small { color: var(--bg); }
 
-.attack-btn {
+.start-game-btn {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
   border: none;
@@ -200,13 +208,203 @@ h1 {
   transition: transform 0.2s, box-shadow 0.2s;
   letter-spacing: 0.05em;
 }
-.attack-btn:hover { transform: scale(1.05); box-shadow: 0 0 55px var(--primary); }
+.start-game-btn:hover { transform: scale(1.05); box-shadow: 0 0 55px var(--primary); }
 
-#battle-log {
-  margin-top: 25px;
-  font-size: 1.15rem;
-  font-weight: 600;
+/* Aktivní herní obrazovka */
+#game-arena {
+  display: none;
+  text-align: left;
+  animation: fadeIn 0.4s ease;
+}
+
+.arena-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.turn-badge {
+  background: rgba(6, 182, 212, 0.2);
+  border: 1px solid var(--primary);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+.reset-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 6px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+.reset-btn:hover { background: var(--danger); color: #fff; }
+
+.fighters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+@media (max-width: 700px) {
+  .fighters-grid { grid-template-columns: 1fr; }
+}
+
+.fighter-box {
+  background: rgba(1, 8, 20, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  position: relative;
+}
+.fighter-box.enemy {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.08);
+}
+.fighter-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.fighter-title h3 { font-size: 1.25rem; font-family: 'Space Grotesk', sans-serif; }
+.shield-tag {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.stat-row { margin-bottom: 12px; }
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: var(--muted);
+}
+.bar-bg {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hp-player { background: linear-gradient(90deg, #059669, #10b981); }
+.hp-enemy { background: linear-gradient(90deg, #b91c1c, #ef4444); }
+.energy-fill { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+
+/* Taktické karty / schopnosti */
+.skills-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.skill-btn {
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+.skill-btn:hover:not(:disabled) {
+  background: rgba(6, 182, 212, 0.22);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(6, 182, 212, 0.25);
+}
+.skill-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.skill-top {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.skill-cost {
+  color: #38bdf8;
+  font-size: 0.8rem;
+}
+.skill-desc {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* Bojový záznam */
+.combat-console {
+  background: #000205;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 16px;
+  padding: 18px;
+  height: 190px;
+  overflow-y: auto;
+  font-size: 0.95rem;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.log-entry {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--primary);
+}
+.log-entry.enemy-turn { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.06); }
+.log-entry.system-msg { border-left-color: var(--warning); color: #fde68a; }
+
+.end-banner {
+  margin-top: 20px;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  display: none;
+}
+.end-banner.win {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid var(--success);
+  color: #a7f3d0;
+}
+.end-banner.lose {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--danger);
+  color: #fecaca;
 }
 
 footer {
@@ -261,20 +459,86 @@ footer {
     <p>Bezpečnostní architektura Atlantidy je založena na doktríně preventivní dominance a nekompromisní obrany státních zájmů vůči jakýmkoliv vnějším vlivům. Vztahy s vnějším světem jsou striktně regulovány centrálním ministerstvem pro strategické záležitosti a jsou postaveny na principu vynucené harmonie a technologické výměny. Historické územní spory byly dávno vyřešeny díky absolutní převaze podmořských ozbrojených sil, které zajišťují klid a pořádek v celém globálním měřítku. Páteř obranných složek tvoří elitní kybernetické legie pod přímým velením generála Gorgona 2007 a pokročilé úderné jednotky cyborga Bambina VII, jejichž připravenost garantuje okamžitou neutralizaci jakékoliv potenciální hrozby. Veškerá komunikace s povrchovými státy probíhá za přísných bezpečnostních podmínek, přičemž Atlantida vystupuje jako neotřesitelný garant stability, který dohlíží na dodržování globálního pořádku z pohodlí a bezpečí svých nedobytných hlubinných pevností.</p>
   </div>
 
-  <!-- DUEL SEKCE -->
+  <!-- INTERAKTIVNÍ HERNÍ DUEL -->
   <section class="duel-card">
-    <h2>⚔️ Válečný Duel proti Atlantidě</h2>
-    <p>Zvolte si stát a pokuste se provést strategický útok na nejmocnější podmořskou říši světa.</p>
+    <h2>⚔️ Strategický Simulátor: Invaze do Atlantidy</h2>
     
-    <div class="nations">
-      <button class="nation-btn" onclick="pickNation(this, 'USA')">🇺🇸 Spojené státy</button>
-      <button class="nation-btn" onclick="pickNation(this, 'Česko')">🇨🇿 Česká republika</button>
-      <button class="nation-btn" onclick="pickNation(this, 'Japonsko')">🇯🇵 Japonsko</button>
+    <!-- Výběr státu (Před hrou) -->
+    <div id="setup-screen">
+      <p class="duel-subtitle">Vyberte stát, sestavte taktiku a pokuste se prolomit hlubinnou obranu diktátora Uzara MCVIII.</p>
+      
+      <div class="nations">
+        <button class="nation-btn" onclick="pickNation(this, 'USA')">
+          <span>🇺🇸 Spojené státy</span>
+          <small>Orbitální arzenál • Vyvážený útok</small>
+        </button>
+        <button class="nation-btn" onclick="pickNation(this, 'Česko')">
+          <span>🇨🇿 Česká republika</span>
+          <small>Taktická improvizace • Vysoká odolnost</small>
+        </button>
+        <button class="nation-btn" onclick="pickNation(this, 'Japonsko')">
+          <span>🇯🇵 Japonsko</span>
+          <small>Mecha technologie • Kybernetické údery</small>
+        </button>
+      </div>
+
+      <button class="start-game-btn" onclick="startGame()">SPUSTIT VÁLEČNOU SIMULACI</button>
+      <div id="setup-warning" style="margin-top:15px; color:#f87171; font-weight:700;"></div>
     </div>
 
-    <button class="attack-btn" onclick="launchAttack()">ZAHÁJIT 1. TAH ÚTOKU</button>
-    
-    <div id="battle-log"></div>
+    <!-- Aktivní aréna (Během hry) -->
+    <div id="game-arena">
+      <div class="arena-header">
+        <span class="turn-badge" id="turn-counter">TAH 1</span>
+        <span style="color: var(--muted); font-size: 0.9rem; font-weight: 600;" id="enemy-intent">📡 Radar: Uzar nabíjí hydro-štít...</span>
+        <button class="reset-btn" onclick="resetGame()">✖ Ukončit / Změnit stát</button>
+      </div>
+
+      <div class="fighters-grid">
+        <!-- Hráč -->
+        <div class="fighter-box">
+          <div class="fighter-title">
+            <h3 id="player-name">🇺🇸 USA</h3>
+            <span class="shield-tag" id="player-shield">🛡️ Štít: 0</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label"><span>Integrita sil (HP)</span><span id="player-hp-text">1000 / 1000</span></div>
+            <div class="bar-bg"><div class="bar-fill hp-player" id="player-hp-bar" style="width: 100%;"></div></div>
+          </div>
+          <div class="stat-row" style="margin-bottom:0;">
+            <div class="stat-label"><span>Taktická energie</span><span id="player-en-text">100 / 100</span></div>
+            <div class="bar-bg"><div class="bar-fill energy-fill" id="player-en-bar" style="width: 100%;"></div></div>
+          </div>
+        </div>
+
+        <!-- Nepřítel (Atlantida) -->
+        <div class="fighter-box enemy">
+          <div class="fighter-title">
+            <h3>🔱 Impérium Atlantida</h3>
+            <span class="shield-tag" id="enemy-shield">🛡️ Kvantový štít: 150</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label"><span>Pevnost Highwater (HP)</span><span id="enemy-hp-text">1500 / 1500</span></div>
+            <div class="bar-bg"><div class="bar-fill hp-enemy" id="enemy-hp-bar" style="width: 100%;"></div></div>
+          </div>
+          <div class="stat-row" style="margin-bottom:0;">
+            <div class="stat-label"><span>Reaktorová kapacita</span><span id="enemy-en-text">100%</span></div>
+            <div class="bar-bg"><div class="bar-fill energy-fill" id="enemy-en-bar" style="width: 100%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="skills-title">⚡ Vyberte taktickou operaci pro tento tah:</div>
+      <div class="skills-grid" id="skills-container"></div>
+
+      <div class="combat-console" id="combat-log"></div>
+
+      <div class="end-banner" id="end-screen">
+        <h3 id="end-title" style="font-size: 1.6rem; margin-bottom: 10px;"></h3>
+        <p id="end-desc" style="margin-bottom: 18px; line-height: 1.6;"></p>
+        <button class="start-game-btn" style="padding: 12px 30px; font-size: 1rem;" onclick="resetGame()">HRÁT ZNOVU</button>
+      </div>
+    </div>
   </section>
 
   <footer>
@@ -283,7 +547,7 @@ footer {
 </div>
 
 <script>
-// Futuristická animace pozadí s částicemi a propojenými spoji (PC & Mobile)
+// Futuristická animace pozadí s částicemi a propojenými spoji
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -331,7 +595,6 @@ initParticles();
 
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
   for (let i = 0; i < particles.length; i++) {
     particles[i].update();
     particles[i].draw();
@@ -357,49 +620,259 @@ animate();
 function showTab(id, btn) {
   document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
 
-// Výběr státu
+// ==========================================
+// HERNÍ LOGIKA - STRATEGICKÝ DUEL
+// ==========================================
 let chosenNation = null;
+let gameState = {};
+
+const nationConfigs = {
+  'USA': {
+    label: '🇺🇸 Spojené státy',
+    maxHp: 1100,
+    skills: [
+      { name: '🚀 Hlubinné torpédo', cost: 20, desc: 'Způsobí 180–230 poškození pevnosti.', type: 'dmg', min: 180, max: 230 },
+      { name: '🛰️ Orbitální laser', cost: 45, desc: 'Prorazí štíty a udělí 360 poškození.', type: 'pierce', val: 360 },
+      { name: '🛡️ Aegis obrana', cost: 25, desc: 'Aktivuje energetický štít (+180) a opraví 100 HP.', type: 'def', shield: 180, heal: 100 },
+      { name: '🔋 Zásobovací konvoj', cost: 0, desc: 'Dobije +45 energie a opraví 80 HP.', type: 'recharge', en: 45, heal: 80 }
+    ]
+  },
+  'Česko': {
+    label: '🇨🇿 Česká republika',
+    maxHp: 1250,
+    skills: [
+      { name: '💣 Hlubinná mina', cost: 20, desc: 'Způsobí 170–240 poškození reaktorům.', type: 'dmg', min: 170, max: 240 },
+      { name: '⚡ Zkrat v rozvodně', cost: 40, desc: 'Zničí nepřátelský štít a udělí 290 poškození.', type: 'shatter', val: 290 },
+      { name: '🏰 Titanový bunkr', cost: 25, desc: 'Získáš +220 štít a regeneruješ 130 HP.', type: 'def', shield: 220, heal: 130 },
+      { name: '🔋 Polní generátor', cost: 0, desc: 'Dobije +50 energie a opraví 90 HP.', type: 'recharge', en: 50, heal: 90 }
+    ]
+  },
+  'Japonsko': {
+    label: '🇯🇵 Japonsko',
+    maxHp: 1000,
+    skills: [
+      { name: '🤖 Mecha výsadek', cost: 20, desc: 'Rychlý úder za 200–250 poškození.', type: 'dmg', min: 200, max: 250 },
+      { name: '💻 Kvantový virus', cost: 50, desc: 'Masivní přetížení za 420 poškození.', type: 'dmg', min: 400, max: 440 },
+      { name: '💠 Plazmová bariéra', cost: 25, desc: 'Přidá +170 štít a obnoví 110 HP.', type: 'def', shield: 170, heal: 110 },
+      { name: '🔋 Fúzní článek', cost: 0, desc: 'Dobije +55 energie a opraví 70 HP.', type: 'recharge', en: 55, heal: 70 }
+    ]
+  }
+};
+
+const enemyMoves = [
+  { name: 'Tlaková vlna z příkopu', type: 'dmg', min: 140, max: 190, intent: '📡 Radar: Detekován nárůst podmořského tlaku!' },
+  { name: 'Útok legie generála Gorgona 2007', type: 'dmg', min: 180, max: 230, intent: '📡 Radar: Kybernetické jednotky Gorgona 2007 útočí!' },
+  { name: 'Obnova kvantového štítu Highwateru', type: 'shield', val: 160, heal: 90, intent: '📡 Radar: Atlantida přesměrovává energii do štítů.' },
+  { name: 'Výboj cyborga Bambina VII', type: 'heavy', min: 230, max: 280, intent: '⚠️ VAROVÁNÍ: Bambin VII nabíjí hlavní dělo!' }
+];
+
 function pickNation(btn, name) {
   document.querySelectorAll('.nation-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   chosenNation = name;
+  document.getElementById('setup-warning').textContent = '';
 }
 
-// Simulace duelu s decentním koncem
-function launchAttack() {
-  const log = document.getElementById('battle-log');
-  
+function startGame() {
   if (!chosenNation) {
-    log.innerHTML = `<span style="color:#f87171;">⚠️ Nejdříve si nahoře musíš vybrat stát pro útok!</span>`;
+    document.getElementById('setup-warning').textContent = '⚠️ Nejdříve si vyberte stát, za který chcete bojovat!';
     return;
   }
 
-  log.innerHTML = `⏳ Probíhá vyhodnocení strategického tahu za stát <b>${chosenNation}</b>...`;
+  const cfg = nationConfigs[chosenNation];
+  gameState = {
+    turn: 1,
+    playerHp: cfg.maxHp,
+    playerMaxHp: cfg.maxHp,
+    playerEn: 100,
+    playerShield: 50,
+    enemyHp: 1500,
+    enemyMaxHp: 1500,
+    enemyShield: 150,
+    nextEnemyMove: enemyMoves[0],
+    isPlayerTurn: true,
+    gameOver: false
+  };
 
-  setTimeout(() => {
-    let specificMessage = "";
-    
-    if (chosenNation === 'USA') {
-      specificMessage = "Uzar MCVIII predikoval tento útok s dvouletým předstihem. Obranný systém impéria bezodkladně neutralizoval veškeré snahy a území Spojených států bylo v 1. tahu zcela plynule a bezpečně utopeno pod novou hladinu oceánu.";
-    } else if (chosenNation === 'Česko') {
-      specificMessage = "Česká expedice narazila v hlubinách na neprostupné legie generála Gorgona 2007. Během prvního tahu došlo k úplnému zaplavení vnitrozemí a začlenění území do správní oblasti podmořského impéria.";
-    } else if (chosenNation === 'Japonsko') {
-      specificMessage = "Japonské technologické systémy nedokázaly čelit hlubinnému tlaku a kvantové obraně Highwateru. Celé území bylo v prvním tahu efektivně začleněno pod správu diktátora Uzara.";
-    }
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('game-arena').style.display = 'block';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('player-name').textContent = cfg.label;
+  document.getElementById('combat-log').innerHTML = '';
 
-    log.innerHTML = `
-      <div style="background:rgba(6, 182, 212, 0.1); border:1px solid rgba(6, 182, 212, 0.3); padding:22px; border-radius:16px; margin-top:18px; color:#e0f2fe; text-align:left;">
-        🌊 <b>Výsledek 1. tahu (${chosenNation}):</b><br><br>
-        ${specificMessage}<br><br>
-        <b>Konec hry:</b> Byli jste úspěšně utopeni a anektováni pod velením Uzara MCVIII.
+  addLog(`🚀 Válečná simulace zahájena! Jednotky státu ${cfg.label} sestoupily k hranicím Atlantidy.`, 'system-msg');
+  renderSkills();
+  updateUI();
+}
+
+function resetGame() {
+  document.getElementById('game-arena').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'block';
+}
+
+function renderSkills() {
+  const container = document.getElementById('skills-container');
+  container.innerHTML = '';
+  const skills = nationConfigs[chosenNation].skills;
+
+  skills.forEach((skill, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'skill-btn';
+    btn.disabled = !gameState.isPlayerTurn || gameState.gameOver || gameState.playerEn < skill.cost;
+    btn.innerHTML = `
+      <div class="skill-top">
+        <span>${skill.name}</span>
+        <span class="skill-cost">${skill.cost > 0 ? '-' + skill.cost + ' EN' : '+EN'}</span>
       </div>
+      <div class="skill-desc">${skill.desc}</div>
     `;
-  }, 1400);
+    btn.onclick = () => executePlayerTurn(idx);
+    container.appendChild(btn);
+  });
+}
+
+function executePlayerTurn(skillIndex) {
+  if (!gameState.isPlayerTurn || gameState.gameOver) return;
+
+  const skill = nationConfigs[chosenNation].skills[skillIndex];
+  if (gameState.playerEn < skill.cost) return;
+
+  gameState.playerEn -= skill.cost;
+  gameState.isPlayerTurn = false;
+
+  if (skill.type === 'dmg') {
+    const rawDmg = Math.floor(Math.random() * (skill.max - skill.min + 1)) + skill.min;
+    dealDamageToEnemy(rawDmg, false);
+    addLog(`🎯 Použil jsi <b>${skill.name}</b> a zasáhl obranu Atlantidy silou <b>${rawDmg}</b>!`);
+  } else if (skill.type === 'pierce') {
+    dealDamageToEnemy(skill.val, true);
+    addLog(`🛰️ <b>${skill.name}</b> obešel kvantové štíty a způsobil přímé poškození <b>${skill.val} HP</b>!`);
+  } else if (skill.type === 'shatter') {
+    gameState.enemyShield = 0;
+    dealDamageToEnemy(skill.val, true);
+    addLog(`⚡ <b>${skill.name}</b> kompletně vyřadil nepřátelské štíty a udělil <b>${skill.val}</b> poškození!`);
+  } else if (skill.type === 'def') {
+    gameState.playerShield += skill.shield;
+    gameState.playerHp = Math.min(gameState.playerMaxHp, gameState.playerHp + skill.heal);
+    addLog(`🛡️ Aktivoval jsi <b>${skill.name}</b> (+${skill.shield} štít, +${skill.heal} HP).`);
+  } else if (skill.type === 'recharge') {
+    gameState.playerEn = Math.min(100, gameState.playerEn + skill.en);
+    gameState.playerHp = Math.min(gameState.playerMaxHp, gameState.playerHp + skill.heal);
+    addLog(`🔋 <b>${skill.name}</b> obnovil +${skill.en} energie a opravil +${skill.heal} HP.`);
+  }
+
+  updateUI();
+
+  if (gameState.enemyHp <= 0) {
+    finishGame(true);
+    return;
+  }
+
+  // Tah Atlantidy po krátké prodlevě
+  setTimeout(executeEnemyTurn, 950);
+}
+
+function dealDamageToEnemy(dmg, ignoreShield) {
+  if (ignoreShield) {
+    gameState.enemyHp = Math.max(0, gameState.enemyHp - dmg);
+  } else {
+    if (gameState.enemyShield >= dmg) {
+      gameState.enemyShield -= dmg;
+    } else {
+      const remainder = dmg - gameState.enemyShield;
+      gameState.enemyShield = 0;
+      gameState.enemyHp = Math.max(0, gameState.enemyHp - remainder);
+    }
+  }
+}
+
+function executeEnemyTurn() {
+  if (gameState.gameOver) return;
+
+  const move = gameState.nextEnemyMove;
+
+  if (move.type === 'dmg' || move.type === 'heavy') {
+    const rawDmg = Math.floor(Math.random() * (move.max - move.min + 1)) + move.min;
+    if (gameState.playerShield >= rawDmg) {
+      gameState.playerShield -= rawDmg;
+      addLog(`🔱 Atlantida použila <b>${move.name}</b> (${rawDmg}), ale tvůj štít celý úder pohltil!`, 'enemy-turn');
+    } else {
+      const remainder = rawDmg - gameState.playerShield;
+      gameState.playerShield = 0;
+      gameState.playerHp = Math.max(0, gameState.playerHp - remainder);
+      addLog(`🔱 Atlantida udeřila schopností <b>${move.name}</b> a způsobila <b>${remainder}</b> poškození tvým silám!`, 'enemy-turn');
+    }
+  } else if (move.type === 'shield') {
+    gameState.enemyShield += move.val;
+    gameState.enemyHp = Math.min(gameState.enemyMaxHp, gameState.enemyHp + move.heal);
+    addLog(`🔱 Uzar MCVIII aktivoval <b>${move.name}</b> (+${move.val} štít, +${move.heal} HP).`, 'enemy-turn');
+  }
+
+  if (gameState.playerHp <= 0) {
+    updateUI();
+    finishGame(false);
+    return;
+  }
+
+  // Příprava dalšího tahu
+  gameState.turn += 1;
+  gameState.playerEn = Math.min(100, gameState.playerEn + 15);
+  gameState.nextEnemyMove = enemyMoves[Math.floor(Math.random() * enemyMoves.length)];
+  gameState.isPlayerTurn = true;
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById('turn-counter').textContent = `TAH ${gameState.turn}`;
+  document.getElementById('enemy-intent').textContent = gameState.nextEnemyMove.intent;
+
+  document.getElementById('player-hp-text').textContent = `${gameState.playerHp} / ${gameState.playerMaxHp}`;
+  document.getElementById('player-hp-bar').style.width = `${(gameState.playerHp / gameState.playerMaxHp) * 100}%`;
+  document.getElementById('player-en-text').textContent = `${gameState.playerEn} / 100`;
+  document.getElementById('player-en-bar').style.width = `${gameState.playerEn}%`;
+  document.getElementById('player-shield').textContent = `🛡️ Štít: ${gameState.playerShield}`;
+
+  document.getElementById('enemy-hp-text').textContent = `${gameState.enemyHp} / ${gameState.enemyMaxHp}`;
+  document.getElementById('enemy-hp-bar').style.width = `${(gameState.enemyHp / gameState.enemyMaxHp) * 100}%`;
+  document.getElementById('enemy-shield').textContent = `🛡️ Kvantový štít: ${gameState.enemyShield}`;
+
+  renderSkills();
+}
+
+function addLog(htmlText, extraClass = '') {
+  const logBox = document.getElementById('combat-log');
+  const entry = document.createElement('div');
+  entry.className = `log-entry ${extraClass}`;
+  entry.innerHTML = htmlText;
+  logBox.appendChild(entry);
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function finishGame(playerWon) {
+  gameState.gameOver = true;
+  renderSkills();
+
+  const endBanner = document.getElementById('end-screen');
+  const endTitle = document.getElementById('end-title');
+  const endDesc = document.getElementById('end-desc');
+
+  endBanner.style.display = 'block';
+
+  if (playerWon) {
+    endBanner.className = 'end-banner win';
+    endTitle.textContent = '🏆 VÍTĚZSTVÍ! Obrana Highwateru byla prolomena!';
+    endDesc.textContent = `Neuvěřitelné! Jednotky státu ${nationConfigs[chosenNation].label} v ${gameState.turn}. tahu přetížily hlavní reaktory Atlantidy a donutily diktátora Uzara MCVIII k dočasnému ústupu do nejhlubších příkopů.`;
+    addLog('🏆 Konec bitvy: Podařilo se ti zvítězit nad podmořským impériem!', 'system-msg');
+  } else {
+    endBanner.className = 'end-banner lose';
+    endTitle.textContent = '🌊 PORÁŽKA! Tvé síly byly pohlceny hlubinou.';
+    endDesc.textContent = `V ${gameState.turn}. tahu obranný systém Atlantidy zcela rozdrtil tvou expedici. Území státu ${nationConfigs[chosenNation].label} bylo úspěšně utopeno a anektováno pod velením Uzara MCVIII.`;
+    addLog('💀 Konec hry: Byli jste úspěšně utopeni pod velením Uzara MCVIII.', 'enemy-turn');
+  }
 }
 </script>
 
