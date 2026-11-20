@@ -8,20 +8,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
 
 :root {
-  --bg: #00050b;
-  --surface: #020c1b;
-  --card: rgba(3, 18, 38, 0.85);
-  --border: rgba(6, 182, 212, 0.3);
-  --border-glow: rgba(6, 182, 212, 0.9);
-  --primary: #06b6d4;
-  --secondary: #0284c7;
+  --bg: #000308;
+  --surface: #020b18;
+  --card: rgba(2, 16, 36, 0.85);
+  --border: rgba(6, 182, 212, 0.35);
+  --border-glow: rgba(6, 182, 212, 0.95);
+  
+  --primary: #06b6d4; /* Tyrkysová */
+  --secondary: #0284c7; /* Modrá */
   --accent: #38bdf8;
-  --glow: rgba(6, 182, 212, 0.45);
+  --glow: rgba(6, 182, 212, 0.5);
+  
   --text: #f0f9ff;
   --muted: #93c5fd;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -30,219 +34,383 @@ body {
   overflow-x: hidden;
   position: relative;
 }
-body::before {
-  content: '';
+
+/* Insane Animated Background Canvas (PC & Mobile) */
+#bg-canvas {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.2), transparent 50%),
-              radial-gradient(circle at 20% 90%, rgba(2, 132, 199, 0.15), transparent 60%),
-              radial-gradient(circle at 80% 70%, rgba(56, 189, 248, 0.1), transparent 40%);
   pointer-events: none;
   z-index: 0;
 }
-.wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 25px; }
-header { text-align: center; padding: 50px 0 30px; }
+
+.wrap { position: relative; z-index: 1; max-width: 1050px; margin: 0 auto; padding: 30px 20px; }
+
+header {
+  text-align: center;
+  padding: 50px 0 30px;
+}
 .badge-top {
-  display: inline-block; padding: 6px 18px; border-radius: 30px;
-  background: rgba(6, 182, 212, 0.15); border: 1px solid var(--border);
-  color: var(--primary); font-size: 0.78rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 18px;
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 30px;
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid var(--border);
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 18px;
   box-shadow: 0 0 25px var(--glow);
 }
 h1 {
-  font-family: 'Space Grotesk', sans-serif; font-size: clamp(3rem, 6vw, 5rem);
-  font-weight: 700; background: linear-gradient(135deg, #ffffff 20%, var(--primary) 70%, var(--secondary) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 12px; text-shadow: 0 0 40px rgba(6, 182, 212, 0.4); letter-spacing: -0.02em;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 20%, var(--primary) 70%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+  text-shadow: 0 0 45px rgba(6, 182, 212, 0.45);
+  letter-spacing: -0.02em;
 }
-.subtitle { color: var(--muted); font-size: 1.15rem; font-weight: 600; }
+.subtitle {
+  color: var(--muted);
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+}
+
+/* Navigační tlačítka */
 .nav-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 14px; margin: 35px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin: 35px 0;
 }
 .nav-btn {
-  background: var(--card); backdrop-filter: blur(16px); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px; color: var(--text); font-weight: 700;
-  font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: var(--card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 .nav-btn:hover, .nav-btn.active {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(2, 132, 199, 0.25));
-  border-color: var(--primary); box-shadow: 0 0 30px var(--glow); transform: translateY(-3px);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(2, 132, 199, 0.3));
+  border-color: var(--primary);
+  box-shadow: 0 0 35px var(--glow);
+  transform: translateY(-3px);
 }
+
+/* Obsahové sekce */
 .section-panel {
-  background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border);
-  border-radius: 24px; padding: 35px; margin-bottom: 35px;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.6); display: none;
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 35px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+  display: none;
 }
-.section-panel.active { display: block; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.section-panel.active {
+  display: block;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .section-panel h2 {
-  font-family: 'Space Grotesk', sans-serif; font-size: 2rem; color: var(--primary);
-  margin-bottom: 22px; display: flex; align-items: center; gap: 12px;
-  text-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  color: var(--primary);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
 }
-.section-panel p { color: #cbd5e1; line-height: 1.7; margin-bottom: 20px; font-size: 1.05rem; }
-.data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 20px; }
+.section-panel p {
+  color: #cbd5e1;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  font-size: 1.05rem;
+}
+
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
 .data-box {
-  background: rgba(1, 8, 20, 0.75); border: 1px solid rgba(6, 182, 212, 0.15);
-  padding: 20px; border-radius: 16px; transition: border-color 0.2s;
+  background: rgba(1, 8, 20, 0.85);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  padding: 22px;
+  border-radius: 16px;
+  transition: all 0.25s;
 }
-.data-box:hover { border-color: rgba(6, 182, 212, 0.5); }
-.data-box b {
-  color: var(--primary); display: block; margin-bottom: 6px; font-size: 0.85rem;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.data-box span { color: #f8fafc; font-size: 1.05rem; font-weight: 600; line-height: 1.5; }
+.data-box:hover { border-color: rgba(6, 182, 212, 0.7); box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+.data-box b { color: var(--primary); display: block; margin-bottom: 8px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.data-box span { color: #f8fafc; font-size: 1.05rem; font-weight: 600; line-height: 1.6; }
+
+/* Sekce Duelu */
 .duel-card {
-  background: linear-gradient(180deg, rgba(3, 18, 38, 0.95), rgba(0, 5, 11, 0.98));
-  border: 2px solid var(--primary); border-radius: 28px; padding: 40px; text-align: center;
-  box-shadow: 0 0 60px rgba(6, 182, 212, 0.25); margin-bottom: 45px;
+  background: linear-gradient(180deg, rgba(2, 16, 36, 0.95), rgba(0, 3, 8, 0.98));
+  border: 2px solid var(--primary);
+  border-radius: 28px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 0 70px rgba(6, 182, 212, 0.3);
+  margin-bottom: 45px;
 }
-.duel-card h2 { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; color: #fff; margin-bottom: 12px; }
+.duel-card h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.2rem;
+  color: #fff;
+  margin-bottom: 12px;
+  text-shadow: 0 0 20px var(--primary);
+}
 .duel-card p { color: var(--muted); margin-bottom: 30px; font-size: 1.1rem; }
-.nations { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 30px; }
+
+.nations {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
 .nation-btn {
-  background: rgba(6, 182, 212, 0.08); border: 1px solid var(--border);
-  padding: 14px 28px; border-radius: 14px; color: #fff; font-weight: 700;
-  font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid var(--border);
+  padding: 14px 28px;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 .nation-btn:hover, .nation-btn.selected {
-  background: var(--primary); color: var(--bg); box-shadow: 0 0 25px var(--primary); border-color: var(--primary);
+  background: var(--primary);
+  color: var(--bg);
+  box-shadow: 0 0 30px var(--primary);
+  border-color: var(--primary);
 }
+
 .attack-btn {
-  background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
-  border: none; padding: 18px 40px; font-size: 1.2rem; font-weight: 800;
-  border-radius: 16px; cursor: pointer; box-shadow: 0 0 30px var(--glow);
-  transition: transform 0.2s, box-shadow 0.2s; letter-spacing: 0.05em;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  border: none;
+  padding: 18px 45px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  border-radius: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 35px var(--glow);
+  transition: transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.05em;
 }
-.attack-btn:hover { transform: scale(1.05); box-shadow: 0 0 45px var(--primary); }
-#battle-log { margin-top: 25px; font-size: 1.15rem; font-weight: 600; line-height: 1.6; }
-.tutorial-panel {
-  background: var(--card); border: 1px dashed var(--border);
-  border-radius: 24px; padding: 35px; margin-bottom: 50px;
+.attack-btn:hover { transform: scale(1.05); box-shadow: 0 0 55px var(--primary); }
+
+#battle-log {
+  margin-top: 25px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.6;
 }
-.tutorial-panel h3 { font-family: 'Space Grotesk', sans-serif; color: var(--primary); margin-bottom: 18px; font-size: 1.5rem; }
-.tutorial-panel ol { padding-left: 22px; color: #cbd5e1; line-height: 1.9; font-size: 1.05rem; }
-.tutorial-panel code {
-  background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 6px;
-  color: var(--primary); font-family: monospace; font-size: 0.95rem;
-  border: 1px solid rgba(6, 182, 212, 0.2);
-}
+
 footer {
-  text-align: center; padding: 25px; color: var(--muted); font-size: 0.9rem;
+  text-align: center;
+  padding: 25px;
+  color: var(--muted);
+  font-size: 0.9rem;
   border-top: 1px solid rgba(255,255,255,0.06);
-}
-@media (max-width: 600px) {
-  .wrap { padding: 16px; }
-  .section-panel, .duel-card, .tutorial-panel { padding: 24px 18px; }
-  .section-panel h2 { font-size: 1.55rem; }
-  .duel-card h2 { font-size: 1.7rem; }
 }
 </style>
 </head>
 <body>
+
+<canvas id="bg-canvas"></canvas>
+
 <div class="wrap">
   <header>
     <div class="badge-top">Oficiální Geopolitický Portál • Třída 2026</div>
     <h1>Atlantida</h1>
-    <p class="subtitle">Největší podmořská světová velmoc pod vedením diktátora Uzara MCVIII</p>
+    <p class="subtitle">Jediná globální supervelmoc, která tě utopí dřív, než stihneš mrknout</p>
   </header>
 
+  <!-- Navigace -->
   <div class="nav-grid">
     <button class="nav-btn active" onclick="showTab('uzemi', this)">🌍 Území a Poloha</button>
-    <button class="nav-btn" onclick="showTab('vlada', this)">👑 Vláda a Diktatúra</button>
+    <button class="nav-btn" onclick="showTab('vlada', this)">👑 Vláda a Diktatura</button>
     <button class="nav-btn" onclick="showTab('ekonomika', this)">💰 Ekonomika a Cíle</button>
     <button class="nav-btn" onclick="showTab('vztahy', this)">⚔️ Vztahy a Sousedé</button>
   </div>
 
+  <!-- 1. ÚZEMÍ -->
   <div id="uzemi" class="section-panel active">
-    <h2>🌍 Geografická data a Území</h2>
-    <p>Strategický přehled o poloze a extrémních podmínkách tohoto originálního státu:</p>
+    <h2>🌍 Geografická data a Rozsáhlé Území</h2>
+    <p>Zapomeň na suverénní státy na mapě. Atlantida si neklade malé cíle – zabírá naprosto všechno, co má v sobě aspoň kapku vlhkosti. Suchozemské státy jsou podle Uzara jen dočasně odložené bazény.</p>
     <div class="data-grid">
-      <div class="data-box"><b>Poloha světa</b><span>Pod vodou, pod Antarktidou</span></div>
-      <div class="data-box"><b>Rozloha impéria</b><span>34 milionů km² (Světová velmoc)</span></div>
-      <div class="data-box"><b>Hlavní město</b><span>Highwater město</span></div>
-      <div class="data-box"><b>Podnebný pás</b><span>Polární (pod vodou, mrazivá hloubka)</span></div>
-      <div class="data-box"><b>Typ hranice</b><span>Přírodní (nedá se dýchat / celý stát je pod vodou)</span></div>
-      <div class="data-box"><b>Sousedství</b><span>Pod Antarktidou / Světové vodní plochy</span></div>
+      <div class="data-box"><b>Poloha světa</b><span>Schovaní pod ledovcem v Antarktidě, kde tě nikdo nenajde, dokud neroztaje celá planeta.</span></div>
+      <div class="data-box"><b>Rozloha impéria</b><span>100% všech světových vodních ploch, oceánů, moří, bazénů a kaluží na ulici.</span></div>
+      <div class="data-box"><b>Hlavní město</b><span>Highwater (Neonová metropole postavená z titanu, tlaku a stříkajícího sarkasmu).</span></div>
+      <div class="data-box"><b>Podnebný pás</b><span>Krutá polární tma s ideální teplotou na zmrznutí nepřítele za viva.</span></div>
+      <div class="data-box"><b>Typ hranice</b><span>Vodní stěna smrti (kdo neumí plavat v tekutém neonu, má prostě smůlu).</span></div>
+      <div class="data-box"><b>Sousedství</b><span>Žádné. Ostatní země jsou pouze budoucí podmořské parkoviště.</span></div>
     </div>
   </div>
 
+  <!-- 2. VLÁDA -->
   <div id="vlada" class="section-panel">
-    <h2>👑 Forma Vlády a Režim</h2>
-    <p>Železná ruka zákona pod vedením nejvyšší moci:</p>
+    <h2>👑 Forma Vlády, Režim a Suverenita</h2>
+    <p>Žádná demokracie, žádné zdržování. Vládneme železnou pěstí a absolutním božským právem diktátora, který má vždycky pravdu – i když zrovna nemá.</p>
     <div class="data-grid">
-      <div class="data-box"><b>Forma vlády</b><span>Monarchie</span></div>
-      <div class="data-box"><b>Politický režim</b><span>Šílený despotický diktátor</span></div>
-      <div class="data-box"><b>Jméno vládce</b><span>Uzar MCVIII Veliký</span></div>
-      <div class="data-box"><b>Způsob suverenity</b><span>Obětování lidí Poseidonovi, popravou a válkou v roce 2212 s Honzou</span></div>
+      <div class="data-box"><b>Forma vlády</b><span>Nemilosrdná podmořská autokracie s prvkem povinného obdivu k vládci.</span></div>
+      <div class="data-box"><b>Politický režim</b><span>Absolutní diktatura řádu MCVIII, kde se o zákonech nediskutuje, rovnou se platí pokuta v podobě potopení.</span></div>
+      <div class="data-box"><b>Jméno vládce</b><span>Uzar MCVIII Veliký (vládce vln, tlaku a hlavně tvého bezesného spánku).</span></div>
+      <div class="data-box"><b>Způsob suverenity</b><span>Rituální obětování zkažených kávovarů Poseidonovi a bleskové kvantové popravy.</span></div>
     </div>
   </div>
 
+  <!-- 3. EKONOMIKA -->
   <div id="ekonomika" class="section-panel">
-    <h2>💰 Ekonomika a Hlavní Cíle</h2>
-    <p>Na čem staví prosperita podmořské velmoci a jaké jsou hlavní úkoly:</p>
+    <h2>💰 Ekonomická Síla a Hlavní Cíle</h2>
+    <p>Naše ekonomika nestojí na inflaci ani na eurech. Fungujeme na čisté energii z hlubinných anomálií a na děsivých vizích našeho vůdce.</p>
     <div class="data-grid">
-      <div class="data-box"><b>Ekonomické zdroje</b><span>Mrtvé vody do Brridy (staré) a podmořské rezervy</span></div>
-      <div class="data-box"><b>Soběstačnost</b><span>Absolutně soběstačný (má vlastní vody i globální vliv)</span></div>
-      <div class="data-box"><b>Hlavní cíl státu</b><span>NA VITA ZRODÍROVAT OBA DINOSAURY!</span></div>
-      <div class="data-box"><b>Mezinárodní postavení</b><span>Uznaný ostatními, protože NEMAJÍ NA VÝBĚR</span></div>
+      <div class="data-box"><b>Ekonomické zdroje</b><span>Neomezená síla z hlubinných reaktorů a těžby stlačeného temného oceánu.</span></div>
+      <div class="data-box"><b>Soběstačnost</b><span>Absolutní. Vyrábíme si vlastní kyslík, vlastní elektřinu a vlastní pravidla fyziky.</span></div>
+      <div class="data-box"><b>Hlavní cíl státu</b><span>Oživit pradávné dinosaury pod vodou a poslat je na pevninu dělat pořádek!</span></div>
+      <div class="data-box"><b>Mezinárodní postavení</b><span>Respektovaní a obávaní. Zbytek světa raději drží krok, protože nechce mít obývák pod vodou.</span></div>
     </div>
   </div>
 
+  <!-- 4. VZTAHY -->
   <div id="vztahy" class="section-panel">
-    <h2>⚔️ Vztahy se Sousedé a Bezpečnost</h2>
-    <p>Jak Atlantida udržuje pořádek ve svém okolí:</p>
+    <h2>⚔️ Vztahy se Sousedy a Bezpečnost</h2>
+    <p>Diplomacie v Atlantidě funguje velmi jednoduše: buď s námi souhlasíš, nebo ti vypustíme rybníček.</p>
     <div class="data-grid">
-      <div class="data-box"><b>Spolupráce</b><span>Podmíněná – obětování lidstva, vydírání silou</span></div>
-      <div class="data-box"><b>Územní spory</b><span>Žádné, všichni nepřátelé byli zničeni nebo zotročeni</span></div>
-      <div class="data-box"><b>Armádní opora</b><span>Gorgon 2007, Bambin VII a velkolepý rod Prybu Maúka</span></div>
+      <div class="data-box"><b>Spolupráce</b><span>Vynucená loajalita výměnou za to, že tě nenecháme sežrat mutanty.</span></div>
+      <div class="data-box"><b>Územní spory</b><span>Nulové. Kdo měl jiný názor, ten už se na hladinu nikdy nepodíval.</span></div>
+      <div class="data-box"><b>Armádní opora</b><span>Elitní kybernetické legie generála Gorgona 2007 a neúprosný cyborg Bambin VII.</span></div>
     </div>
   </div>
 
+  <!-- DUEL SEKCE -->
   <section class="duel-card">
     <h2>⚔️ Válečný Duel proti Atlantidě</h2>
-    <p>Myslíš si, že tvoje země má šanci? Vyber si reálnou velmoc a zaútoč na Uzarovu říši!</p>
+    <p>Myslíš si, že tvůj stát má šanci proti všemocné říši? Vyber si oběť a zaútoč na Uzarovu pevnost!</p>
+    
     <div class="nations">
       <button class="nation-btn" onclick="pickNation(this, 'USA')">🇺🇸 Spojené státy</button>
       <button class="nation-btn" onclick="pickNation(this, 'Česko')">🇨🇿 Česká republika</button>
       <button class="nation-btn" onclick="pickNation(this, 'Japonsko')">🇯🇵 Japonsko</button>
     </div>
+
     <button class="attack-btn" onclick="launchAttack()">ZAHÁJIT 1. TAH ÚTOKU</button>
-    <div id="battle-log" aria-live="polite"></div>
+    
+    <div id="battle-log"></div>
   </section>
 
-  <div class="tutorial-panel">
-    <h3>🚀 Detailní Návod: Jak to dát na GitHub Pages</h3>
-    <ol>
-      <li>Jdi na web <b><a href="https://github.com" target="_blank" rel="noopener noreferrer" style="color:var(--primary)">github.com</a></b> a přihlas se ke svému účtu.</li>
-      <li>Vpravo nahoře klikni na tlačítko <b>`+`</b> a zvol <b>New repository</b>.</li>
-      <li>Jako název repozitáře napiš např. <code>atlantida</code> a zatrhni možnost <b>Public</b> (Veřejný).</li>
-      <li>Ostatní políčka nech prázdná a klikni dole na zelené tlačítko <b>Create repository</b>.</li>
-      <li>Klikni na modrý odkaz <b>"uploading an existing file"</b>.</li>
-      <li>Ulož si tento kód jako soubor s přesným názvem <code>index.html</code> a přetáhni ho do okna na GitHubu.</li>
-      <li>Sjeď dolů a klikni na velké zelené tlačítko <b>Commit changes</b>.</li>
-      <li>Nahoře v repozitáři klikni na záložku <b>Settings</b> -> vlevo klikni na <b>Pages</b>.</li>
-      <li>V části <i>Build and deployment</i> vyber u políčka Branch možnost <b>main</b> a klikni na <b>Save</b>.</li>
-      <li>Po minutě obdržíš odkaz, na kterém tvá slavná Atlantida běží pro celý svět! 🎉</li>
-    </ol>
-  </div>
-
   <footer>
-    <p>Geopolitická databáze Atlantida © 2026 • Všechna práva vyhrazena pod hrozbou okamžité popravy Uzaarem MCVIII</p>
+    <p>Geopolitická databáze Atlantida © 2026 • Všechna práva vyhrazena pod hrozbou okamžitého utopení Uzaarem MCVIII</p>
   </footer>
 </div>
 
 <script>
+// Insane Background Canvas Animation (Optimized for PC & Mobile)
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class CyberParticle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.vx = (Math.random() - 0.5) * 1.2;
+    this.vy = (Math.random() - 0.5) * 1.2;
+    this.radius = Math.random() * 2.2 + 0.8;
+    this.color = Math.random() > 0.5 ? '#06b6d4' : '#38bdf8';
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = this.color;
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particles = [];
+  let count = Math.floor((canvas.width * canvas.height) / 14000);
+  for (let i = 0; i < count; i++) {
+    particles.push(new CyberParticle());
+  }
+}
+initParticles();
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update();
+    particles[i].draw();
+    for (let j = i + 1; j < particles.length; j++) {
+      let dx = particles[i].x - particles[j].x;
+      let dy = particles[i].y - particles[j].y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(6, 182, 212, ${0.25 * (1 - dist / 120)})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animate);
+}
+animate();
+
+// Přepínání sekcí
 function showTab(id, btn) {
   document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
 
+// Výběr státu
 let chosenNation = null;
 function pickNation(btn, name) {
   document.querySelectorAll('.nation-btn').forEach(b => b.classList.remove('selected'));
@@ -250,24 +418,38 @@ function pickNation(btn, name) {
   chosenNation = name;
 }
 
+// Unikátní hlášky pro troll duel
 function launchAttack() {
   const log = document.getElementById('battle-log');
+  
   if (!chosenNation) {
     log.innerHTML = `<span style="color:#f87171;">⚠️ Nejdříve si nahoře musíš vybrat oběť (země)!</span>`;
     return;
   }
 
-  log.textContent = `⏳ Mobilizuješ armádu státu ${chosenNation}... Připravuješ se na útok...`;
+  log.innerHTML = `⏳ Spouštíš zoufalý útok za stát <b>${chosenNation}</b>... Satelity detekují totální poplach v hlubinách...`;
+
   setTimeout(() => {
+    let specificMessage = "";
+    
+    if (chosenNation === 'USA') {
+      specificMessage = "Uzar MCVIII čekal tento útok přesně 2 roky, 4 měsíce a 12 minut dopředu. Ještě před začátkem tahu odpálil směrem na Washington kompresovanou neutronovou hvězdu zabalenou v alobalu. Celé Spojené státy se v jediném okamžiku zhroutily do černé díry.";
+    } else if (chosenNation === 'Česko') {
+      specificMessage = "Česká armáda vyrazila do boje s plným nasazením, ale okamžitě narazila na elitní legie generála Gorgona 2007. Uzar osobně otočil kohoutkem a celou kotlinu zalil žhnoucím tekutým neonem. Po republice zbyla jen mokrá skvrna.";
+    } else if (chosenNation === 'Japonsko') {
+      specificMessage = "Japonská mecha armáda se pokusila hacknout podmořský firewall Highwater města. Systém napájený genetikou oživených dinosaurů však obvody jejich robotů okamžitě přetížil. Z Japonska zbyly jen blikající pixely.";
+    }
+
     log.innerHTML = `
-      <div style="background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.4); padding:22px; border-radius:16px; margin-top:18px; color:#fca5a5;">
-        💥 <b>TAH 1: Tvoje vojska zaútočila na podmořské hlubiny Atlantidy!</b><br><br>
-        ❌ <b>FATÁLNÍ PROHRA:</b> Diktátor Uzar MCVIII Veliký tvůj útok okamžitě předvídal. Vypustil oživené dinosaury a celou zemi <b>${chosenNation}</b> obětoval Poseidonovi!<br>
-        🌊 Vaše území bylo kompletně zatopeno v 1. tahu. <b>Prohrál jsi.</b> Proti Atlantidě se prostě vyhrát nedá! 💀
+      <div style="background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.4); padding:22px; border-radius:16px; margin-top:18px; color:#fca5a5; text-align:left;">
+        💥 <b>TAH 1: Fatální úder proti říši Atlantidy (${chosenNation})!</b><br><br>
+        ❌ <b>ZNIČENO V 1. TAHU:</b> ${specificMessage}<br><br>
+        🌊 <b>Prohrál jsi.</b> Uzar MCVIII Veliký sleduje tvou porážku s úsměvem z vrcholu antarktického trůnu! 💀
       </div>
     `;
-  }, 1300);
+  }, 1400);
 }
 </script>
+
 </body>
 </html>
