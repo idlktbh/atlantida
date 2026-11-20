@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATLANTIDA • Oficiální Podmořské Impérium</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+
+:root {
+  --bg: #00050b;
+  --surface: #020c1b;
+  --card: rgba(3, 18, 38, 0.85);
+  --border: rgba(6, 182, 212, 0.3);
+  --border-glow: rgba(6, 182, 212, 0.9);
+  --primary: #06b6d4;
+  --secondary: #0284c7;
+  --accent: #38bdf8;
+  --glow: rgba(6, 182, 212, 0.45);
+  --text: #f0f9ff;
+  --muted: #93c5fd;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.2), transparent 50%),
+              radial-gradient(circle at 20% 90%, rgba(2, 132, 199, 0.15), transparent 60%),
+              radial-gradient(circle at 80% 70%, rgba(56, 189, 248, 0.1), transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+.wrap { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 25px; }
+header { text-align: center; padding: 50px 0 30px; }
+.badge-top {
+  display: inline-block; padding: 6px 18px; border-radius: 30px;
+  background: rgba(6, 182, 212, 0.15); border: 1px solid var(--border);
+  color: var(--primary); font-size: 0.78rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 18px;
+  box-shadow: 0 0 25px var(--glow);
+}
+h1 {
+  font-family: 'Space Grotesk', sans-serif; font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 700; background: linear-gradient(135deg, #ffffff 20%, var(--primary) 70%, var(--secondary) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 12px; text-shadow: 0 0 40px rgba(6, 182, 212, 0.4); letter-spacing: -0.02em;
+}
+.subtitle { color: var(--muted); font-size: 1.15rem; font-weight: 600; }
+.nav-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px; margin: 35px 0;
+}
+.nav-btn {
+  background: var(--card); backdrop-filter: blur(16px); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px; color: var(--text); font-weight: 700;
+  font-size: 1rem; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.nav-btn:hover, .nav-btn.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(2, 132, 199, 0.25));
+  border-color: var(--primary); box-shadow: 0 0 30px var(--glow); transform: translateY(-3px);
+}
+.section-panel {
+  background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border);
+  border-radius: 24px; padding: 35px; margin-bottom: 35px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6); display: none;
+}
+.section-panel.active { display: block; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.section-panel h2 {
+  font-family: 'Space Grotesk', sans-serif; font-size: 2rem; color: var(--primary);
+  margin-bottom: 22px; display: flex; align-items: center; gap: 12px;
+  text-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+}
+.section-panel p { color: #cbd5e1; line-height: 1.7; margin-bottom: 20px; font-size: 1.05rem; }
+.data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 20px; }
+.data-box {
+  background: rgba(1, 8, 20, 0.75); border: 1px solid rgba(6, 182, 212, 0.15);
+  padding: 20px; border-radius: 16px; transition: border-color 0.2s;
+}
+.data-box:hover { border-color: rgba(6, 182, 212, 0.5); }
+.data-box b {
+  color: var(--primary); display: block; margin-bottom: 6px; font-size: 0.85rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.data-box span { color: #f8fafc; font-size: 1.05rem; font-weight: 600; line-height: 1.5; }
+.duel-card {
+  background: linear-gradient(180deg, rgba(3, 18, 38, 0.95), rgba(0, 5, 11, 0.98));
+  border: 2px solid var(--primary); border-radius: 28px; padding: 40px; text-align: center;
+  box-shadow: 0 0 60px rgba(6, 182, 212, 0.25); margin-bottom: 45px;
+}
+.duel-card h2 { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; color: #fff; margin-bottom: 12px; }
+.duel-card p { color: var(--muted); margin-bottom: 30px; font-size: 1.1rem; }
+.nations { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 30px; }
+.nation-btn {
+  background: rgba(6, 182, 212, 0.08); border: 1px solid var(--border);
+  padding: 14px 28px; border-radius: 14px; color: #fff; font-weight: 700;
+  font-size: 1.05rem; cursor: pointer; transition: all 0.2s;
+}
+.nation-btn:hover, .nation-btn.selected {
+  background: var(--primary); color: var(--bg); box-shadow: 0 0 25px var(--primary); border-color: var(--primary);
+}
+.attack-btn {
+  background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
+  border: none; padding: 18px 40px; font-size: 1.2rem; font-weight: 800;
+  border-radius: 16px; cursor: pointer; box-shadow: 0 0 30px var(--glow);
+  transition: transform 0.2s, box-shadow 0.2s; letter-spacing: 0.05em;
+}
+.attack-btn:hover { transform: scale(1.05); box-shadow: 0 0 45px var(--primary); }
+#battle-log { margin-top: 25px; font-size: 1.15rem; font-weight: 600; line-height: 1.6; }
+.tutorial-panel {
+  background: var(--card); border: 1px dashed var(--border);
+  border-radius: 24px; padding: 35px; margin-bottom: 50px;
+}
+.tutorial-panel h3 { font-family: 'Space Grotesk', sans-serif; color: var(--primary); margin-bottom: 18px; font-size: 1.5rem; }
+.tutorial-panel ol { padding-left: 22px; color: #cbd5e1; line-height: 1.9; font-size: 1.05rem; }
+.tutorial-panel code {
+  background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 6px;
+  color: var(--primary); font-family: monospace; font-size: 0.95rem;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+footer {
+  text-align: center; padding: 25px; color: var(--muted); font-size: 0.9rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+@media (max-width: 600px) {
+  .wrap { padding: 16px; }
+  .section-panel, .duel-card, .tutorial-panel { padding: 24px 18px; }
+  .section-panel h2 { font-size: 1.55rem; }
+  .duel-card h2 { font-size: 1.7rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge-top">Oficiální Geopolitický Portál • Třída 2026</div>
+    <h1>Atlantida</h1>
+    <p class="subtitle">Největší podmořská světová velmoc pod vedením diktátora Uzara MCVIII</p>
+  </header>
+
+  <div class="nav-grid">
+    <button class="nav-btn active" onclick="showTab('uzemi', this)">🌍 Území a Poloha</button>
+    <button class="nav-btn" onclick="showTab('vlada', this)">👑 Vláda a Diktatúra</button>
+    <button class="nav-btn" onclick="showTab('ekonomika', this)">💰 Ekonomika a Cíle</button>
+    <button class="nav-btn" onclick="showTab('vztahy', this)">⚔️ Vztahy a Sousedé</button>
+  </div>
+
+  <div id="uzemi" class="section-panel active">
+    <h2>🌍 Geografická data a Území</h2>
+    <p>Strategický přehled o poloze a extrémních podmínkách tohoto originálního státu:</p>
+    <div class="data-grid">
+      <div class="data-box"><b>Poloha světa</b><span>Pod vodou, pod Antarktidou</span></div>
+      <div class="data-box"><b>Rozloha impéria</b><span>34 milionů km² (Světová velmoc)</span></div>
+      <div class="data-box"><b>Hlavní město</b><span>Highwater město</span></div>
+      <div class="data-box"><b>Podnebný pás</b><span>Polární (pod vodou, mrazivá hloubka)</span></div>
+      <div class="data-box"><b>Typ hranice</b><span>Přírodní (nedá se dýchat / celý stát je pod vodou)</span></div>
+      <div class="data-box"><b>Sousedství</b><span>Pod Antarktidou / Světové vodní plochy</span></div>
+    </div>
+  </div>
+
+  <div id="vlada" class="section-panel">
+    <h2>👑 Forma Vlády a Režim</h2>
+    <p>Železná ruka zákona pod vedením nejvyšší moci:</p>
+    <div class="data-grid">
+      <div class="data-box"><b>Forma vlády</b><span>Monarchie</span></div>
+      <div class="data-box"><b>Politický režim</b><span>Šílený despotický diktátor</span></div>
+      <div class="data-box"><b>Jméno vládce</b><span>Uzar MCVIII Veliký</span></div>
+      <div class="data-box"><b>Způsob suverenity</b><span>Obětování lidí Poseidonovi, popravou a válkou v roce 2212 s Honzou</span></div>
+    </div>
+  </div>
+
+  <div id="ekonomika" class="section-panel">
+    <h2>💰 Ekonomika a Hlavní Cíle</h2>
+    <p>Na čem staví prosperita podmořské velmoci a jaké jsou hlavní úkoly:</p>
+    <div class="data-grid">
+      <div class="data-box"><b>Ekonomické zdroje</b><span>Mrtvé vody do Brridy (staré) a podmořské rezervy</span></div>
+      <div class="data-box"><b>Soběstačnost</b><span>Absolutně soběstačný (má vlastní vody i globální vliv)</span></div>
+      <div class="data-box"><b>Hlavní cíl státu</b><span>NA VITA ZRODÍROVAT OBA DINOSAURY!</span></div>
+      <div class="data-box"><b>Mezinárodní postavení</b><span>Uznaný ostatními, protože NEMAJÍ NA VÝBĚR</span></div>
+    </div>
+  </div>
+
+  <div id="vztahy" class="section-panel">
+    <h2>⚔️ Vztahy se Sousedé a Bezpečnost</h2>
+    <p>Jak Atlantida udržuje pořádek ve svém okolí:</p>
+    <div class="data-grid">
+      <div class="data-box"><b>Spolupráce</b><span>Podmíněná – obětování lidstva, vydírání silou</span></div>
+      <div class="data-box"><b>Územní spory</b><span>Žádné, všichni nepřátelé byli zničeni nebo zotročeni</span></div>
+      <div class="data-box"><b>Armádní opora</b><span>Gorgon 2007, Bambin VII a velkolepý rod Prybu Maúka</span></div>
+    </div>
+  </div>
+
+  <section class="duel-card">
+    <h2>⚔️ Válečný Duel proti Atlantidě</h2>
+    <p>Myslíš si, že tvoje země má šanci? Vyber si reálnou velmoc a zaútoč na Uzarovu říši!</p>
+    <div class="nations">
+      <button class="nation-btn" onclick="pickNation(this, 'USA')">🇺🇸 Spojené státy</button>
+      <button class="nation-btn" onclick="pickNation(this, 'Česko')">🇨🇿 Česká republika</button>
+      <button class="nation-btn" onclick="pickNation(this, 'Japonsko')">🇯🇵 Japonsko</button>
+    </div>
+    <button class="attack-btn" onclick="launchAttack()">ZAHÁJIT 1. TAH ÚTOKU</button>
+    <div id="battle-log" aria-live="polite"></div>
+  </section>
+
+  <div class="tutorial-panel">
+    <h3>🚀 Detailní Návod: Jak to dát na GitHub Pages</h3>
+    <ol>
+      <li>Jdi na web <b><a href="https://github.com" target="_blank" rel="noopener noreferrer" style="color:var(--primary)">github.com</a></b> a přihlas se ke svému účtu.</li>
+      <li>Vpravo nahoře klikni na tlačítko <b>`+`</b> a zvol <b>New repository</b>.</li>
+      <li>Jako název repozitáře napiš např. <code>atlantida</code> a zatrhni možnost <b>Public</b> (Veřejný).</li>
+      <li>Ostatní políčka nech prázdná a klikni dole na zelené tlačítko <b>Create repository</b>.</li>
+      <li>Klikni na modrý odkaz <b>"uploading an existing file"</b>.</li>
+      <li>Ulož si tento kód jako soubor s přesným názvem <code>index.html</code> a přetáhni ho do okna na GitHubu.</li>
+      <li>Sjeď dolů a klikni na velké zelené tlačítko <b>Commit changes</b>.</li>
+      <li>Nahoře v repozitáři klikni na záložku <b>Settings</b> -> vlevo klikni na <b>Pages</b>.</li>
+      <li>V části <i>Build and deployment</i> vyber u políčka Branch možnost <b>main</b> a klikni na <b>Save</b>.</li>
+      <li>Po minutě obdržíš odkaz, na kterém tvá slavná Atlantida běží pro celý svět! 🎉</li>
+    </ol>
+  </div>
+
+  <footer>
+    <p>Geopolitická databáze Atlantida © 2026 • Všechna práva vyhrazena pod hrozbou okamžité popravy Uzaarem MCVIII</p>
+  </footer>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+let chosenNation = null;
+function pickNation(btn, name) {
+  document.querySelectorAll('.nation-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  chosenNation = name;
+}
+
+function launchAttack() {
+  const log = document.getElementById('battle-log');
+  if (!chosenNation) {
+    log.innerHTML = `<span style="color:#f87171;">⚠️ Nejdříve si nahoře musíš vybrat oběť (země)!</span>`;
+    return;
+  }
+
+  log.textContent = `⏳ Mobilizuješ armádu státu ${chosenNation}... Připravuješ se na útok...`;
+  setTimeout(() => {
+    log.innerHTML = `
+      <div style="background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.4); padding:22px; border-radius:16px; margin-top:18px; color:#fca5a5;">
+        💥 <b>TAH 1: Tvoje vojska zaútočila na podmořské hlubiny Atlantidy!</b><br><br>
+        ❌ <b>FATÁLNÍ PROHRA:</b> Diktátor Uzar MCVIII Veliký tvůj útok okamžitě předvídal. Vypustil oživené dinosaury a celou zemi <b>${chosenNation}</b> obětoval Poseidonovi!<br>
+        🌊 Vaše území bylo kompletně zatopeno v 1. tahu. <b>Prohrál jsi.</b> Proti Atlantidě se prostě vyhrát nedá! 💀
+      </div>
+    `;
+  }, 1300);
+}
+</script>
+</body>
+</html>
