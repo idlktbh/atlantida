@@ -2,1560 +2,1103 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATLANTIDA • Oficiální Podmořské Impérium</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CYBER DUEL 1v1 • ARENA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap');
 
-:root {
-  --bg: #000308;
-  --surface: rgba(2, 16, 36, 0.9);
-  --border: rgba(6, 182, 212, 0.4);
-  --primary: #06b6d4;
-  --secondary: #0284c7;
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --purple: #a855f7;
-  --text: #f0f9ff;
-  --muted: #93c5fd;
-  --glow: rgba(6, 182, 212, 0.6);
-}
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background-color: #030712;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
-}
+    .font-mono-tech {
+      font-family: 'JetBrains Mono', monospace;
+    }
 
-#bg-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
+    /* Pulzující efekt pro tlačítko QUEUE */
+    @keyframes queuePulse {
+      0%, 100% { box-shadow: 0 0 25px rgba(6, 182, 212, 0.45), inset 0 0 15px rgba(6, 182, 212, 0.2); }
+      50% { box-shadow: 0 0 45px rgba(6, 182, 212, 0.8), inset 0 0 25px rgba(6, 182, 212, 0.4); }
+    }
 
-.wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 40px 20px; }
+    .queue-btn-glow {
+      animation: queuePulse 2.2s infinite ease-in-out;
+    }
 
-header {
-  text-align: center;
-  padding: 50px 0 30px;
-}
-.badge-top {
-  display: inline-block;
-  padding: 6px 18px;
-  border-radius: 30px;
-  background: rgba(6, 182, 212, 0.15);
-  border: 1px solid var(--border);
-  color: var(--primary);
-  font-size: 0.78rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-bottom: 18px;
-  box-shadow: 0 0 25px var(--glow);
-}
-h1 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(3rem, 7vw, 5.5rem);
-  font-weight: 700;
-  background: linear-gradient(135deg, #ffffff 20%, var(--primary) 70%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
-  text-shadow: 0 0 45px rgba(6, 182, 212, 0.45);
-}
-.subtitle {
-  color: var(--muted);
-  font-size: 1.15rem;
-  font-weight: 600;
-}
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-10px, 8px); }
+      40% { transform: translate(10px, -8px); }
+      60% { transform: translate(-7px, -5px); }
+      80% { transform: translate(7px, 5px); }
+    }
 
-/* Navigace portálu */
-.nav-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 14px;
-  margin: 35px 0;
-}
-.nav-btn {
-  background: var(--surface);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
-  color: var(--text);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-.nav-btn:hover, .nav-btn.active {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(2, 132, 199, 0.3));
-  border-color: var(--primary);
-  box-shadow: 0 0 35px var(--glow);
-  transform: translateY(-3px);
-}
+    .shake-arena {
+      animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
 
-/* Obsahové sekce portálu */
-.section-panel {
-  background: var(--surface);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 45px;
-  margin-bottom: 35px;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-  display: none;
-}
-.section-panel.active {
-  display: block;
-  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.section-panel h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
-  color: var(--primary);
-  margin-bottom: 25px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
-}
-.section-panel p {
-  color: #cbd5e1;
-  line-height: 1.9;
-  font-size: 1.05rem;
-  text-align: justify;
-}
-
-/* ========================================================
-   GLOBÁLNÍ TAKTICKÁ MAPA & DUEL PROTI POSÍLENÉMU UZAROVI
-   ======================================================== */
-.duel-card {
-  background: linear-gradient(180deg, rgba(2, 16, 36, 0.96), rgba(0, 3, 8, 0.99));
-  border: 2px solid var(--primary);
-  border-radius: 28px;
-  padding: 36px;
-  text-align: center;
-  margin-bottom: 45px;
-  box-shadow: 0 0 70px rgba(6, 182, 212, 0.3);
-  transition: transform 0.15s;
-}
-@media (max-width: 600px) {
-  .duel-card { padding: 20px 14px; }
-  .section-panel { padding: 28px 20px; }
-}
-
-@keyframes arenaShake {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-6px, 4px); }
-  40% { transform: translate(6px, -4px); }
-  60% { transform: translate(-4px, -3px); }
-  80% { transform: translate(4px, 3px); }
-}
-.shake { animation: arenaShake 0.4s ease; }
-
-.duel-card h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2.2rem;
-  color: #fff;
-  margin-bottom: 10px;
-  text-shadow: 0 0 20px var(--primary);
-}
-.duel-subtitle { color: var(--muted); margin-bottom: 26px; font-size: 1.05rem; line-height: 1.6; }
-
-.nations {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 28px;
-}
-.nation-btn {
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid var(--border);
-  padding: 16px 26px;
-  border-radius: 16px;
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-.nation-btn small { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
-.nation-btn:hover, .nation-btn.selected {
-  background: var(--primary);
-  color: var(--bg);
-  box-shadow: 0 0 30px var(--primary);
-  border-color: var(--primary);
-}
-.nation-btn.selected small { color: var(--bg); }
-
-.start-game-btn {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
-  border: none;
-  padding: 18px 45px;
-  font-size: 1.15rem;
-  font-weight: 800;
-  border-radius: 16px;
-  cursor: pointer;
-  box-shadow: 0 0 35px var(--glow);
-  transition: transform 0.2s, box-shadow 0.2s;
-  letter-spacing: 0.05em;
-}
-.start-game-btn:hover { transform: scale(1.04); box-shadow: 0 0 55px var(--primary); }
-
-#game-arena {
-  display: none;
-  text-align: left;
-  animation: fadeIn 0.4s ease;
-}
-
-.arena-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.turn-badge {
-  background: rgba(6, 182, 212, 0.2);
-  border: 1px solid var(--primary);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-weight: 800;
-  color: var(--primary);
-  font-size: 0.9rem;
-}
-.phase-badge {
-  background: rgba(168, 85, 247, 0.22);
-  border: 1px solid var(--purple);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-weight: 800;
-  color: #e9d5ff;
-  font-size: 0.85rem;
-}
-.reset-btn {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
-  padding: 6px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 0.85rem;
-  transition: 0.2s;
-}
-.reset-btn:hover { background: var(--danger); color: #fff; }
-
-/* Globální mapa světa */
-.map-wrapper {
-  background: #010612;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 22px;
-  position: relative;
-  box-shadow: inset 0 0 45px rgba(6, 182, 212, 0.14);
-}
-.map-top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--muted);
-  flex-wrap: wrap;
-  gap: 8px;
-}
-#world-map-canvas {
-  width: 100%;
-  height: 340px;
-  display: block;
-  border-radius: 14px;
-  background: radial-gradient(circle at 50% 45%, #041c3d 0%, #01050e 100%);
-  cursor: pointer;
-}
-@media (max-width: 650px) {
-  #world-map-canvas { height: 260px; }
-}
-
-.bases-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 12px;
-}
-@media (max-width: 780px) {
-  .bases-grid { grid-template-columns: repeat(2, 1fr); }
-}
-.base-btn {
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 8px;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.base-btn small { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
-.base-btn:hover:not(:disabled) {
-  border-color: var(--primary);
-  background: rgba(6, 182, 212, 0.2);
-}
-.base-btn.active-base {
-  background: rgba(16, 185, 129, 0.22);
-  border-color: var(--success);
-  color: #a7f3d0;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
-}
-.base-btn.flooded-base {
-  background: rgba(239, 68, 68, 0.14);
-  border-color: rgba(239, 68, 68, 0.55);
-  color: #fca5a5;
-}
-.base-btn.flooded-base small { color: #f87171; }
-
-/* Ukazatele bojovníků */
-.fighters-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 22px;
-}
-@media (max-width: 700px) {
-  .fighters-grid { grid-template-columns: 1fr; }
-}
-
-.fighter-box {
-  background: rgba(1, 8, 20, 0.92);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 20px;
-}
-.fighter-box.enemy {
-  border-color: rgba(245, 158, 11, 0.7);
-  background: linear-gradient(160deg, rgba(24, 10, 42, 0.94), rgba(10, 5, 18, 0.96));
-  box-shadow: inset 0 0 35px rgba(168, 85, 247, 0.18), 0 0 25px rgba(245, 158, 11, 0.15);
-}
-.fighter-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.fighter-title h3 { font-size: 1.15rem; font-family: 'Space Grotesk', sans-serif; }
-.shield-tag {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  padding: 3px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.stat-row { margin-bottom: 12px; }
-.stat-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 5px;
-  color: var(--muted);
-}
-.bar-bg {
-  width: 100%;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.hp-player { background: linear-gradient(90deg, #059669, #10b981); }
-.hp-enemy { background: linear-gradient(90deg, #b91c1c, #f59e0b); }
-.energy-fill { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-.overdrive-fill { background: linear-gradient(90deg, #9333ea, #f59e0b); }
-
-/* Schopnosti / Útoky */
-.skills-title {
-  font-size: 0.88rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--primary);
-  font-weight: 800;
-  margin-bottom: 12px;
-}
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 12px;
-  margin-bottom: 22px;
-}
-.skill-btn {
-  background: rgba(6, 182, 212, 0.08);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-  color: #fff;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 6px;
-}
-.skill-btn:hover:not(:disabled) {
-  background: rgba(6, 182, 212, 0.22);
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(6, 182, 212, 0.25);
-}
-.skill-btn.ultimate {
-  border-color: rgba(245, 158, 11, 0.65);
-  background: rgba(245, 158, 11, 0.1);
-}
-.skill-btn.ultimate:hover:not(:disabled) {
-  border-color: var(--warning);
-  background: rgba(245, 158, 11, 0.24);
-  box-shadow: 0 5px 20px rgba(245, 158, 11, 0.35);
-}
-.skill-btn:disabled {
-  opacity: 0.38;
-  cursor: not-allowed;
-}
-.skill-top {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 800;
-  font-size: 0.94rem;
-}
-.skill-cost {
-  color: #38bdf8;
-  font-size: 0.8rem;
-}
-.skill-btn.ultimate .skill-cost { color: #fbbf24; }
-.skill-desc {
-  font-size: 0.8rem;
-  color: #cbd5e1;
-  line-height: 1.4;
-}
-
-/* Bojová konzole */
-.combat-console {
-  background: #000205;
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  border-radius: 16px;
-  padding: 16px;
-  height: 195px;
-  overflow-y: auto;
-  font-size: 0.92rem;
-  line-height: 1.55;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.log-entry {
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--primary);
-}
-.log-entry.enemy-turn { border-left-color: var(--warning); background: rgba(245, 158, 11, 0.09); color: #fde68a; }
-.log-entry.system-msg { border-left-color: #38bdf8; color: #bae6fd; }
-.log-entry.boss-phase { border-left-color: var(--purple); background: rgba(168, 85, 247, 0.14); color: #e9d5ff; }
-
-.end-banner {
-  margin-top: 20px;
-  padding: 26px;
-  border-radius: 18px;
-  text-align: center;
-  display: none;
-}
-.end-banner.win {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid var(--success);
-  color: #a7f3d0;
-}
-.end-banner.lose {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid var(--danger);
-  color: #fecaca;
-}
-
-footer {
-  text-align: center;
-  padding: 25px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-</style>
+    /* Povolit psaní do inputu */
+    input {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      touch-action: auto !important;
+    }
+  </style>
 </head>
-<body>
+<body class="relative flex items-center justify-center bg-[#030712]">
 
-<canvas id="bg-canvas"></canvas>
+  <!-- HERNÍ PLÁTNO ARÉNY (Na pozadí i během aktivního duelu) -->
+  <canvas id="arena-canvas" class="fixed inset-0 w-full h-full block z-0"></canvas>
 
-<div class="wrap">
-  <header>
-    <div class="badge-top">Oficiální Geopolitický Portál • Třída 2026</div>
-    <h1>Atlantida</h1>
-    <p class="subtitle">Vrcholná futuristická podmořská civilizace pod vedením diktátora Uzara MCVIII</p>
-  </header>
+  <!-- 1. OBRAZOVKA: MATCHMAKING (QUEUE + STATUS ?/2) -->
+  <div id="screen-queue" class="relative z-20 w-full max-w-md px-5 flex flex-col items-center text-center">
+    <div class="mb-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono-tech font-bold tracking-widest uppercase">
+      1v1 RANKED ARENA
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-white mb-8 drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+      DAGGER DUEL
+    </h1>
 
-  <!-- Navigace původního portálu -->
-  <div class="nav-grid">
-    <button class="nav-btn active" onclick="showTab('uzemi', this)">🌍 Území a Poloha</button>
-    <button class="nav-btn" onclick="showTab('vlada', this)">👑 Vláda a Diktatura</button>
-    <button class="nav-btn" onclick="showTab('ekonomika', this)">💰 Ekonomika a Cíle</button>
-    <button class="nav-btn" onclick="showTab('vztahy', this)">⚔️ Vztahy a Sousedé</button>
+    <!-- HLAVNÍ TLAČÍTKO QUEUE -->
+    <button id="btn-queue" class="queue-btn-glow w-64 h-20 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 active:scale-95 transition-all text-white font-black text-2xl tracking-wider uppercase cursor-pointer border-2 border-cyan-300/60">
+      QUEUE
+    </button>
+
+    <!-- STATUS HRÁČŮ VE FRONTĚ (?/2) -->
+    <div class="mt-5 flex flex-col items-center">
+      <div id="queue-status-text" class="font-mono-tech text-xl font-extrabold text-cyan-300 tracking-wide">
+        Status: 0/2
+      </div>
+      <div id="queue-subtext" class="text-xs text-slate-400 mt-1">
+        Klikni na QUEUE pro vstup do online fronty
+      </div>
+    </div>
+
+    <!-- Okamžitý testovací režim 2/2 (pro vyzkoušení v jednom prohlížeči) -->
+    <div class="mt-10 pt-5 border-t border-slate-800/80 w-full flex flex-col items-center">
+      <button id="btn-instant-bot" class="px-4 py-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold tracking-wide transition cursor-pointer">
+        ⚡ Rychlý test (Simulovat 2/2 hráčů hned)
+      </button>
+    </div>
   </div>
 
-  <!-- 1. ÚZEMÍ -->
-  <div id="uzemi" class="section-panel active">
-    <h2>🌍 Geografická data a Historie územního vývoje</h2>
-    <p>Historie Atlantidy se začala psát v období velkých geologických změn, kdy se lidstvo rozhodlo opustit nestabilní povrch souše a vybudovat trvalé útočiště v hlubinách oceánů. Centrální oblast impéria, rozprostírající se hluboko pod ledovým krunýřem Antarktidy a sahající do nejodlehlejších příkopů, představuje vrchol moderního inženýrství. S rozlohou pokrývající sto procent všech světových vodních ploch, moří, oceánů a podzemních rezervoárů disponuje tato říše nekonečným prostorem pro rozvoj pokročilých technologií. Hlavní metropole Highwater, vystavěná z vysoce odolných titanových slitin a inteligentních materiálů, odolává extrémnímu tlaku tisíce metrů pod hladinou, kde namísto slunečního svitu vládne sofistikovaný systém bioluminiscence a energetických polí. Ochranné bariéry fungují na principu kvantové hydro-izolace, která zcela odděluje vnitřní obyvatelnou biosféru od divokého a mrazivého vodního živlu. Celý tento komplexní ekosystém byl navržen tak, aby fungoval v naprosté harmonii s přírodními zákony hlubokého moře, přičemž každá zóna je přísně propojena sítí vysokorychlostních podmořských transportních tunelů.</p>
-  </div>
-
-  <!-- 2. VLÁDA -->
-  <div id="vlada" class="section-panel">
-    <h2>👑 Politický systém, Vláda a Suverenita</h2>
-    <p>Politická struktura Atlantidy je postavena na pevných základech absolutistické technologické autokracie, v jejímž čele stojí neotřesitelný vůdce a diktátor Uzar MCVIII. Jeho vláda se vyznačuje naprostou efektivitou, centralizovaným řízením a využíváním prediktivních algoritmů k zajištění vnitřní stability a bezpečnosti celého impéria. Historie tohoto politického zřízení sahá do dob zakládající smlouvy, která eliminovala veškeré formy zbytečných politických debat a nahradila je vědecky podloženým rozhodováním. Diktátor Uzar MCVIII drží ve svých rukou veškerou exekutivní i technologickou moc, přičemž jeho rozhodnutí jsou okamžitě implementována napříč všemi podmořskými provinciemi. Suverenita státu je chráněna sofistikovaným systémem preventivních bezpečnostních opatření a rituálními protokoly, které byly ustanoveny na počest historického vítězství v roce 2212. Díky tomuto systému nedochází k žádným vnitřním nepokojům ani názorovým neshodám, neboť celá společnost sdílí jedinou vizi technologické dokonalosti a nezlomné síly podmořského národa, který úspěšně překonal limity pozemského existování.</p>
-  </div>
-
-  <!-- 3. EKONOMIKA -->
-  <div id="ekonomika" class="section-panel">
-    <h2>💰 Ekonomická základna a Budoucí Cíle</h2>
-    <p>Hospodářský systém Atlantidy zcela ignoruje tradiční měnové trhy a omezující koncepty povrchového světa, místo toho čerpá neomezenou energii z hlubinných geotermálních anomálií, termonukleárních reaktorů a těžby vzácných prvků z mořského dna. Energetická soběstačnost impéria dosahuje absolutních hodnot, což umožňuje financování velkolepých vědeckých projektů, mezi které patří i dlouhodobý plán na genetické oživení pradávných dinosaurů a jejich následné nasazení do strategických pozic. Celý hospodářský cyklus je plně automatizován a řízen centrální umělou inteligencí, která optimalizuje distribuci zdrojů od nejhlubších základen až po povrchové hlídkové stanice. Hlavním strategickým cílem státu je neustálé rozšiřování technologického vlivu, udržení absolutní dominance nad všemi vodními ekosystémy a příprava na novou éru globálního vývoje. Mezinárodní postavení Atlantidy je pevně zakotveno na respektu a technologické převaze, neboť okolní svět si je dobře vědom toho, že stabilita celé planety závisí na nepropustnosti hlubinných hranic a moudrosti centrálního velení.</p>
-  </div>
-
-  <!-- 4. VZTAHY -->
-  <div id="vztahy" class="section-panel">
-    <h2>⚔️ Mezinárodní vztahy a Bezpečnostní doktrína</h2>
-    <p>Bezpečnostní architektura Atlantidy je založena na doktríně preventivní dominance a nekompromisní obrany státních zájmů vůči jakýmkoliv vnějším vlivům. Vztahy s vnějším světem jsou striktně regulovány centrálním ministerstvem pro strategické záležitosti a jsou postaveny na principu vynucené harmonie a technologické výměny. Historické územní spory byly dávno vyřešeny díky absolutní převaze podmořských ozbrojených sil, které zajišťují klid a pořádek v celém globálním měřítku. Páteř obranných složek tvoří elitní kybernetické legie pod přímým velením generála Gorgona 2007 a pokročilé úderné jednotky cyborga Bambina VII, jejichž připravenost garantuje okamžitou neutralizaci jakékoliv potenciální hrozby. Veškerá komunikace s povrchovými státy probíhá za přísných bezpečnostních podmínek, přičemž Atlantida vystupuje jako neotřesitelný garant stability, který dohlíží na dodržování globálního pořádku z pohodlí a bezpečí svých nedobytných hlubinných pevností.</p>
-  </div>
-
-  <!-- ========================================================
-       GLOBÁLNÍ TAKTICKÁ MAPA & DUEL PROTI POSÍLENÉMU UZAROVI
-       ======================================================== -->
-  <section class="duel-card" id="duel-section">
-    <h2>🌍 Globální Obrana: Souboj proti Uzarovi MCVIII</h2>
-    
-    <!-- Výběr státu před spuštěním -->
-    <div id="setup-screen">
-      <p class="duel-subtitle">
-        Uzar MCVIII aktivoval režim <b>OVERDRIVE</b> (12 000 HP, 1 500 Hyper-štít a schopnost zaplavovat vaše stanoviště po celé planetě).<br>
-        Vyberte stát, manévrujte mezi svými 4 globálními stanovišti na mapě světa a pokuste se odrazit invazi z Antarktidy!
+  <!-- 2. OBRAZOVKA: VÝBĚR HERNÍHO JMÉNA (PO DOSAŽENÍ 2/2) -->
+  <div id="screen-name" class="hidden relative z-20 w-full max-w-md px-5">
+    <div class="bg-slate-950/90 backdrop-blur-xl border border-cyan-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
+      <div class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono-tech text-xs font-bold mb-3">
+        Status: 2/2 • ZÁPAS NALEZEN
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-black text-white mb-2">Zadej herní jméno</h2>
+      <p class="text-xs text-slate-400 mb-6">
+        Souboj na <span class="text-cyan-300 font-bold">10 hitů dýkou</span>. Zadej své jméno a vstup do arény.
       </p>
-      
-      <div class="nations">
-        <button class="nation-btn" onclick="pickNation(this, 'USA')">
-          <span>🇺🇸 Spojené státy</span>
-          <small>4 globální základny • Orbitální údery</small>
-        </button>
-        <button class="nation-btn" onclick="pickNation(this, 'Česko')">
-          <span>🇨🇿 Česká republika</span>
-          <small>4 evropská a světová stanoviště • Odolnost</small>
-        </button>
-        <button class="nation-btn" onclick="pickNation(this, 'Japonsko')">
-          <span>🇯🇵 Japonsko</span>
-          <small>4 pacifické uzly • Mecha & Kvantové útoky</small>
-        </button>
+
+      <input
+        id="input-nickname"
+        type="text"
+        maxlength="16"
+        placeholder="Tvoje přezdívka..."
+        class="w-full px-4 py-3.5 rounded-xl bg-slate-900 border-2 border-slate-700 focus:border-cyan-400 focus:outline-none text-white font-bold text-center text-lg mb-3 transition"
+      />
+
+      <!-- Tajný indikátor pro rhvx0 -->
+      <div id="secret-weapon-badge" class="hidden mb-4 px-3 py-2 rounded-xl bg-amber-500/15 border border-amber-400/60 text-amber-300 text-xs font-mono-tech font-extrabold">
+        ☢️ DETEKOVÁN KÓD [rhvx0] • VÝBAVA: GIGANTICKÝ ONE-SHOT BLASTER!
       </div>
 
-      <button class="start-game-btn" onclick="startGame()">ZAHÁJIT GLOBÁLNÍ OBRANU</button>
-      <div id="setup-warning" style="margin-top:15px; color:#f87171; font-weight:700;"></div>
-    </div>
+      <button id="btn-ready" class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 active:scale-95 text-slate-950 font-black text-base uppercase tracking-wider shadow-lg shadow-cyan-500/25 transition cursor-pointer">
+        PŘIPRAVIT SE DO DUELU
+      </button>
 
-    <!-- Aktivní herní obrazovka -->
-    <div id="game-arena">
-      <div class="arena-header">
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <span class="turn-badge" id="turn-counter">TAH 1</span>
-          <span class="phase-badge" id="boss-phase-badge">UZAR: REŽIM OVERDRIVE (FÁZE 1/3)</span>
-        </div>
-        <span style="color: #fde68a; font-size: 0.9rem; font-weight: 700;" id="enemy-intent">📡 Radar: Uzar zaměřuje vaše stanoviště...</span>
-        <button class="reset-btn" onclick="resetGame()">✖ Ukončit bitvu</button>
-      </div>
-
-      <!-- INTERAKTIVNÍ MAPA SVĚTA SE STANOVIŠTI A ANIMACEMI ÚTOKŮ -->
-      <div class="map-wrapper">
-        <div class="map-top-bar">
-          <span>🗺️ TAKTICKÁ MAPA SVĚTA (Klikněte na stanoviště pro přesun velení)</span>
-          <span id="current-base-bonus" style="color: #10b981;">Stanoviště: Hlavní velitelství</span>
-        </div>
-        <canvas id="world-map-canvas"></canvas>
-        <div class="bases-grid" id="bases-container"></div>
-      </div>
-
-      <!-- Ukazatele bojovníků -->
-      <div class="fighters-grid">
-        <!-- Hráč -->
-        <div class="fighter-box">
-          <div class="fighter-title">
-            <h3 id="player-name">🇺🇸 USA</h3>
-            <span class="shield-tag" id="player-shield">🛡️ Štít: 150</span>
-          </div>
-          <div class="stat-row">
-            <div class="stat-label"><span>Integrita vašich sil (HP)</span><span id="player-hp-text">1800 / 1800</span></div>
-            <div class="bar-bg"><div class="bar-fill hp-player" id="player-hp-bar" style="width: 100%;"></div></div>
-          </div>
-          <div class="stat-row" style="margin-bottom:0;">
-            <div class="stat-label"><span>Taktická energie</span><span id="player-en-text">100 / 100</span></div>
-            <div class="bar-bg"><div class="bar-fill energy-fill" id="player-en-bar" style="width: 100%;"></div></div>
-          </div>
-        </div>
-
-        <!-- Extrémně posílený Uzar MCVIII -->
-        <div class="fighter-box enemy">
-          <div class="fighter-title">
-            <h3>👑 UZAR MCVIII [BUFFED]</h3>
-            <span class="shield-tag" id="enemy-shield" style="background:rgba(245,158,11,0.25); color:#fde68a; border:1px solid rgba(245,158,11,0.5);">🛡️ Hyper-štít: 1500</span>
-          </div>
-          <div class="stat-row">
-            <div class="stat-label"><span>Citadela Highwater (HP)</span><span id="enemy-hp-text">12000 / 12000</span></div>
-            <div class="bar-bg"><div class="bar-fill hp-enemy" id="enemy-hp-bar" style="width: 100%;"></div></div>
-          </div>
-          <div class="stat-row" style="margin-bottom:0;">
-            <div class="stat-label"><span>Nabíjení Hyper-Novy</span><span id="enemy-rage-text">0%</span></div>
-            <div class="bar-bg"><div class="bar-fill overdrive-fill" id="enemy-rage-bar" style="width: 0%;"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="skills-title">⚡ Taktický arzenál (Kliknutím vyšlete animovaný útok z aktivního stanoviště):</div>
-      <div class="skills-grid" id="skills-container"></div>
-
-      <div class="combat-console" id="combat-log"></div>
-
-      <div class="end-banner" id="end-screen">
-        <h3 id="end-title" style="font-size: 1.6rem; margin-bottom: 10px;"></h3>
-        <p id="end-desc" style="margin-bottom: 18px; line-height: 1.6;"></p>
-        <button class="start-game-btn" style="padding: 12px 30px; font-size: 1rem;" onclick="resetGame()">HRÁT ZNOVU</button>
+      <div id="waiting-opponent-msg" class="hidden mt-4 text-xs font-mono-tech text-amber-300 animate-pulse">
+        ⏳ Čekání na potvrzení jména druhého hráče...
       </div>
     </div>
-  </section>
+  </div>
 
-  <footer>
-    <p>Geopolitická databáze Atlantida © 2026 • Všechna práva vyhrazena pod hrozbou okamžitého utopení Uzaarem MCVIII</p>
-  </footer>
-</div>
-
-<script>
-// ========================================================
-// 1. KYBERNETICKÉ ČÁSTICOVÉ POZADÍ PŮVODNÍ STRÁNKY
-// ========================================================
-const bgCanvas = document.getElementById('bg-canvas');
-const bgCtx = bgCanvas.getContext('2d');
-let particles = [];
-
-function resizeBgCanvas() {
-  bgCanvas.width = window.innerWidth;
-  bgCanvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeBgCanvas);
-resizeBgCanvas();
-
-class CyberParticle {
-  constructor() {
-    this.x = Math.random() * bgCanvas.width;
-    this.y = Math.random() * bgCanvas.height;
-    this.vx = (Math.random() - 0.5) * 1.2;
-    this.vy = (Math.random() - 0.5) * 1.2;
-    this.radius = Math.random() * 2.2 + 0.8;
-    this.color = Math.random() > 0.5 ? '#06b6d4' : '#38bdf8';
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
-    if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
-  }
-  draw() {
-    bgCtx.beginPath();
-    bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    bgCtx.fillStyle = this.color;
-    bgCtx.shadowBlur = 12;
-    bgCtx.shadowColor = this.color;
-    bgCtx.fill();
-  }
-}
-
-function initParticles() {
-  particles = [];
-  let count = Math.floor((bgCanvas.width * bgCanvas.height) / 14000);
-  for (let i = 0; i < count; i++) {
-    particles.push(new CyberParticle());
-  }
-}
-initParticles();
-
-function animateBg() {
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].update();
-    particles[i].draw();
-    for (let j = i + 1; j < particles.length; j++) {
-      let dx = particles[i].x - particles[j].x;
-      let dy = particles[i].y - particles[j].y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 120) {
-        bgCtx.beginPath();
-        bgCtx.moveTo(particles[i].x, particles[i].y);
-        bgCtx.lineTo(particles[j].x, particles[j].y);
-        bgCtx.strokeStyle = `rgba(6, 182, 212, ${0.25 * (1 - dist / 120)})`;
-        bgCtx.lineWidth = 0.8;
-        bgCtx.stroke();
-      }
-    }
-  }
-  requestAnimationFrame(animateBg);
-}
-animateBg();
-
-function showTab(id, btn) {
-  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ========================================================
-// 2. DATA MAPY SVĚTA, STANOVIŠŤ A NÁRODŮ
-// ========================================================
-const WORLD_CONTINENTS = [
-  // Severní Amerika
-  [[0.07, 0.15], [0.18, 0.13], [0.28, 0.16], [0.33, 0.25], [0.28, 0.37], [0.23, 0.44], [0.25, 0.49], [0.20, 0.47], [0.15, 0.36], [0.11, 0.24]],
-  // Grónsko
-  [[0.34, 0.07], [0.42, 0.06], [0.43, 0.14], [0.37, 0.17]],
-  // Jižní Amerika
-  [[0.27, 0.51], [0.35, 0.53], [0.40, 0.62], [0.36, 0.75], [0.31, 0.82], [0.28, 0.74], [0.26, 0.60]],
-  // Evropa
-  [[0.46, 0.18], [0.54, 0.14], [0.60, 0.17], [0.59, 0.30], [0.52, 0.33], [0.47, 0.30], [0.46, 0.23]],
-  // Afrika
-  [[0.47, 0.36], [0.57, 0.36], [0.63, 0.46], [0.61, 0.61], [0.56, 0.71], [0.52, 0.70], [0.50, 0.55], [0.45, 0.46]],
-  // Asie
-  [[0.60, 0.15], [0.76, 0.13], [0.90, 0.18], [0.92, 0.31], [0.85, 0.42], [0.77, 0.48], [0.69, 0.45], [0.63, 0.38], [0.60, 0.27]],
-  // Austrálie
-  [[0.79, 0.61], [0.89, 0.60], [0.91, 0.72], [0.83, 0.76], [0.78, 0.70]],
-  // Antarktida (Sídlo Uzara MCVIII)
-  [[0.16, 0.90], [0.38, 0.85], [0.54, 0.84], [0.72, 0.85], [0.88, 0.90], [0.88, 0.98], [0.16, 0.98]]
-];
-
-const UZAR_HQ = { name: '🔱 Highwater (Uzar MCVIII)', x: 0.52, y: 0.88 };
-
-const nationConfigs = {
-  'USA': {
-    label: '🇺🇸 Spojené státy',
-    maxHp: 1850,
-    bases: [
-      { id: 0, name: '🗽 Washington HQ', x: 0.26, y: 0.33, bonus: '+15% obrana', dmgMult: 1.0, defMult: 0.85, enRegen: 18 },
-      { id: 1, name: '❄️ Základna Thule', x: 0.38, y: 0.12, bonus: '-30% poškození od Uzara', dmgMult: 0.95, defMult: 0.70, enRegen: 15 },
-      { id: 2, name: '🌋 Pacifický uzel', x: 0.14, y: 0.42, bonus: '+32 energie za tah', dmgMult: 1.05, defMult: 1.0, enRegen: 32 },
-      { id: 3, name: '🛰️ Jižní předsunutá', x: 0.34, y: 0.64, bonus: '+40% síla útoku', dmgMult: 1.40, defMult: 1.15, enRegen: 20 }
-    ],
-    skills: [
-      { name: '🚀 Balistická raketa', cost: 15, desc: 'Obloukový úder za 320–400 poškození.', type: 'dmg', anim: 'missile', min: 320, max: 400 },
-      { name: '🛰️ Orbitální laser', cost: 35, desc: 'Paprsek z vesmíru ignorující štít (620 DMG).', type: 'pierce', anim: 'laser', val: 620 },
-      { name: '💥 EMP Hlavice', cost: 40, desc: 'Zničí 750 bodů Uzarova štítu + 360 HP.', type: 'shatter', anim: 'emp', shieldDmg: 750, hpDmg: 360 },
-      { name: '🛡️ Aegis Kupole', cost: 25, desc: 'Aktivuje +380 štít a opraví 240 HP.', type: 'def', anim: 'shield', shield: 380, heal: 240 },
-      { name: '🔋 Zásobovací letka', cost: 0, desc: 'Dobije +55 energie a opraví 160 HP.', type: 'recharge', anim: 'shield', en: 55, heal: 160 },
-      { name: '☢️ HYPER-ÚDER ZEUS (ULT)', cost: 85, desc: 'MASIVNÍ SALVA: 1 550 přímého poškození!', type: 'ultimate', anim: 'ultimate', val: 1550 }
-    ]
-  },
-  'Česko': {
-    label: '🇨🇿 Česká republika',
-    maxHp: 2100,
-    bases: [
-      { id: 0, name: '🏰 Praha • Centrála', x: 0.52, y: 0.25, bonus: '+20% obrana & regenerace', dmgMult: 1.0, defMult: 0.80, enRegen: 20 },
-      { id: 1, name: '❄️ Arktický radar', x: 0.45, y: 0.14, bonus: '-35% poškození od Uzara', dmgMult: 0.95, defMult: 0.65, enRegen: 15 },
-      { id: 2, name: '🌋 Asijský reaktor', x: 0.72, y: 0.34, bonus: '+35 energie za tah', dmgMult: 1.05, defMult: 1.0, enRegen: 35 },
-      { id: 3, name: '💣 Africká bašta', x: 0.55, y: 0.55, bonus: '+42% síla útoku', dmgMult: 1.42, defMult: 1.15, enRegen: 20 }
-    ],
-    skills: [
-      { name: '💣 Hlubinná salva', cost: 15, desc: 'Těžké torpédo za 310–410 poškození.', type: 'dmg', anim: 'missile', min: 310, max: 410 },
-      { name: '⚡ Zkrat v Highwateru', cost: 35, desc: 'Smaže 850 bodů Uzarova štítu + 380 HP.', type: 'shatter', anim: 'emp', shieldDmg: 850, hpDmg: 380 },
-      { name: '🔧 Kyber-sabotáž', cost: 30, desc: 'Sníží Uzarovu Hyper-Novu o 40% + 440 DMG.', type: 'sabotage', anim: 'swarm', val: 440 },
-      { name: '🏰 Titanový bunkr', cost: 25, desc: 'Přidá +460 štít a obnoví 290 HP.', type: 'def', anim: 'shield', shield: 460, heal: 290 },
-      { name: '🔋 Polní elektrárna', cost: 0, desc: 'Dobije +60 energie a opraví 180 HP.', type: 'recharge', anim: 'shield', en: 60, heal: 180 },
-      { name: '☄️ KVANTOVÝ KOLAPS (ULT)', cost: 85, desc: 'DRTIVÝ ÚDER: 1 450 poškození + 500 štít!', type: 'ultimate_def', anim: 'ultimate', val: 1450, shield: 500 }
-    ]
-  },
-  'Japonsko': {
-    label: '🇯🇵 Japonsko',
-    maxHp: 1750,
-    bases: [
-      { id: 0, name: '🗼 Tokio • Mecha HQ', x: 0.85, y: 0.35, bonus: '+15% rychlost & útok', dmgMult: 1.15, defMult: 0.90, enRegen: 20 },
-      { id: 1, name: '❄️ Sibiřský štít', x: 0.78, y: 0.17, bonus: '-30% poškození od Uzara', dmgMult: 0.95, defMult: 0.70, enRegen: 15 },
-      { id: 2, name: '🌋 Havajský uzel', x: 0.12, y: 0.48, bonus: '+36 energie za tah', dmgMult: 1.05, defMult: 1.0, enRegen: 36 },
-      { id: 3, name: '🤖 Australský výsadek', x: 0.84, y: 0.68, bonus: '+48% síla útoku', dmgMult: 1.48, defMult: 1.20, enRegen: 20 }
-    ],
-    skills: [
-      { name: '🛸 Roj mikrodronů', cost: 15, desc: 'Formace 8 dronů (360–440 poškození).', type: 'dmg', anim: 'swarm', min: 360, max: 440 },
-      { name: '🗡️ Plazmový paprsek', cost: 35, desc: 'Prorazí štít a udělí 680 poškození.', type: 'pierce', anim: 'laser', val: 680 },
-      { name: '💻 EMP Přetížení', cost: 40, desc: 'Zničí 700 štítu a způsobí 420 poškození.', type: 'shatter', anim: 'emp', shieldDmg: 700, hpDmg: 420 },
-      { name: '💠 Energetická bariéra', cost: 25, desc: 'Získáš +360 štít a opraví 250 HP.', type: 'def', anim: 'shield', shield: 360, heal: 250 },
-      { name: '🔋 Fúzní článek', cost: 0, desc: 'Dobije +65 energie a opraví 150 HP.', type: 'recharge', anim: 'shield', en: 65, heal: 150 },
-      { name: '⚡ SUPERNOVA MECHA (ULT)', cost: 85, desc: 'APOKALYPTICKÝ PAPRSEK: 1 750 poškození!', type: 'ultimate', anim: 'ultimate', val: 1750 }
-    ]
-  }
-};
-
-// Útoky masivně posíleného Uzara MCVIII
-const uzarArsenal = [
-  { name: 'Tlaková imploze oceánu', type: 'dmg', anim: 'missile', min: 340, max: 430, intent: '📡 Radar: Uzar stlačuje oceánský sloupec (Těžký balistický úder)!' },
-  { name: 'Orbitální dělo Highwateru', type: 'pierce', anim: 'laser', min: 290, max: 360, intent: '⚠️ VAROVÁNÍ: Uzar nabíjí orbitální laser (Ignoruje štít)!' },
-  { name: 'Nálet genetických dinosaurů', type: 'multi', anim: 'swarm', hits: 2, min: 230, max: 290, intent: '🦖 POPLACH: Z Antarktidy letí roj oživených dinosaurů (2× zásah)!' },
-  { name: 'Kvantová obnova Citadely', type: 'heal_shield', anim: 'shield', shield: 650, heal: 550, intent: '👑 Radar: Uzar MCVIII regeneruje Citadelu (+650 štít, +550 HP)!' },
-  { name: 'Hydro-záplava stanoviště', type: 'flood', anim: 'emp', min: 280, max: 350, intent: '🌊 KRITICKÉ: Uzar se chystá zaplavit vaše aktivní stanoviště!' }
-];
-
-// ========================================================
-// 3. STAV HRY A LOGIKA
-// ========================================================
-let chosenNation = null;
-let gameState = {};
-let mapAnimFrame = null;
-let activeProjectiles = [];
-let shockwaves = [];
-let explosionParticles = [];
-
-function pickNation(btn, name) {
-  document.querySelectorAll('.nation-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  chosenNation = name;
-  document.getElementById('setup-warning').textContent = '';
-}
-
-function startGame() {
-  if (!chosenNation) {
-    document.getElementById('setup-warning').textContent = '⚠️ Nejdříve si vyberte stát, za který chcete bojovat!';
-    return;
-  }
-
-  const cfg = nationConfigs[chosenNation];
-  gameState = {
-    turn: 1,
-    phase: 1,
-    activeBaseId: 0,
-    floodedBases: [],
-    playerHp: cfg.maxHp,
-    playerMaxHp: cfg.maxHp,
-    playerEn: 100,
-    playerShield: 180,
-    enemyHp: 12000,
-    enemyMaxHp: 12000,
-    enemyShield: 1500,
-    enemyRage: 0,
-    nextEnemyMove: uzarArsenal[0],
-    isPlayerTurn: true,
-    gameOver: false
-  };
-
-  activeProjectiles = [];
-  shockwaves = [];
-  explosionParticles = [];
-
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('game-arena').style.display = 'block';
-  document.getElementById('end-screen').style.display = 'none';
-  document.getElementById('player-name').textContent = cfg.label;
-  document.getElementById('boss-phase-badge').textContent = 'UZAR: REŽIM OVERDRIVE (FÁZE 1/3)';
-  document.getElementById('combat-log').innerHTML = '';
-
-  renderBaseButtons();
-  addLog(`👑 <b>UZAR MCVIII VSTUPUJE DO BITVY V REŽIMU OVERDRIVE!</b> Disponuje 12 000 HP, 1 500 Hyper-štítem a dokáže zaplavovat vaše stanoviště na mapě světa. Přesouvejte velení mezi základnami!`, 'boss-phase');
-  renderSkills();
-  updateUI();
-  startWorldMapLoop();
-}
-
-function resetGame() {
-  if (mapAnimFrame) cancelAnimationFrame(mapAnimFrame);
-  document.getElementById('game-arena').style.display = 'none';
-  document.getElementById('setup-screen').style.display = 'block';
-}
-
-function getActiveBase() {
-  return nationConfigs[chosenNation].bases[gameState.activeBaseId];
-}
-
-function renderBaseButtons() {
-  const container = document.getElementById('bases-container');
-  container.innerHTML = '';
-  const bases = nationConfigs[chosenNation].bases;
-
-  bases.forEach(b => {
-    const isFlooded = gameState.floodedBases.includes(b.id);
-    const isActive = gameState.activeBaseId === b.id;
-    const btn = document.createElement('button');
-    btn.className = `base-btn ${isActive ? 'active-base' : ''} ${isFlooded ? 'flooded-base' : ''}`;
-    btn.disabled = !gameState.isPlayerTurn || gameState.gameOver;
-    btn.innerHTML = `
-      <span>${b.name}</span>
-      <small>${isFlooded ? '🌊 ZAPLAVENO (Oslabený bonus)' : b.bonus}</small>
-    `;
-    btn.onclick = () => switchBase(b.id);
-    container.appendChild(btn);
-  });
-}
-
-function switchBase(baseId) {
-  if (!gameState.isPlayerTurn || gameState.gameOver || gameState.activeBaseId === baseId) return;
-  gameState.activeBaseId = baseId;
-  const b = getActiveBase();
-  const isFlooded = gameState.floodedBases.includes(b.id);
-  addLog(`🧭 Velení přesunuto na stanoviště <b>${b.name}</b> (${isFlooded ? 'Pozor: stanoviště bylo zaplaveno Uzarovou vlnou!' : b.bonus}).`, 'system-msg');
-  renderBaseButtons();
-  updateUI();
-}
-
-function renderSkills() {
-  const container = document.getElementById('skills-container');
-  container.innerHTML = '';
-  const skills = nationConfigs[chosenNation].skills;
-
-  skills.forEach((skill, idx) => {
-    const btn = document.createElement('button');
-    const isUlt = skill.type.startsWith('ultimate');
-    btn.className = `skill-btn ${isUlt ? 'ultimate' : ''}`;
-    btn.disabled = !gameState.isPlayerTurn || gameState.gameOver || gameState.playerEn < skill.cost;
-    btn.innerHTML = `
-      <div class="skill-top">
-        <span>${skill.name}</span>
-        <span class="skill-cost">${skill.cost > 0 ? '-' + skill.cost + ' EN' : '+EN'}</span>
+  <!-- 3. HERNÍ HUD & MOBILNÍ / DESKTOP OVLÁDÁNÍ -->
+  <div id="screen-hud" class="hidden fixed inset-0 z-10 pointer-events-none flex flex-col justify-between p-3 sm:p-5">
+    
+    <!-- Horní lišta s HP obou hráčů (10 dílků) -->
+    <div class="w-full max-w-4xl mx-auto flex items-center justify-between gap-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 rounded-2xl px-4 py-2.5 shadow-xl">
+      <!-- Hráč 1 (Ty) -->
+      <div class="flex-1">
+        <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold mb-1">
+          <span id="hud-my-name" class="text-cyan-300 truncate">Ty</span>
+          <span id="hud-my-hp-text" class="font-mono-tech text-white">10/10 HP</span>
+        </div>
+        <div id="hud-my-hp-bars" class="grid grid-cols-10 gap-1 h-2.5"></div>
       </div>
-      <div class="skill-desc">${skill.desc}</div>
-    `;
-    btn.onclick = () => executePlayerTurn(idx);
-    container.appendChild(btn);
-  });
-}
 
-function triggerArenaShake() {
-  const card = document.getElementById('duel-section');
-  card.classList.remove('shake');
-  void card.offsetWidth;
-  card.classList.add('shake');
-}
+      <div class="px-2 font-mono-tech font-black text-slate-500 text-xs sm:text-sm">VS</div>
 
-function spawnAttackVisual(fromPlayer, animType, color) {
-  const base = getActiveBase();
-  const sx = fromPlayer ? base.x : UZAR_HQ.x;
-  const sy = fromPlayer ? base.y : UZAR_HQ.y;
-  const tx = fromPlayer ? UZAR_HQ.x : base.x;
-  const ty = fromPlayer ? UZAR_HQ.y : base.y;
+      <!-- Hráč 2 (Soupeř) -->
+      <div class="flex-1 text-right">
+        <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold mb-1">
+          <span id="hud-opp-hp-text" class="font-mono-tech text-white">10/10 HP</span>
+          <span id="hud-opp-name" class="text-rose-400 truncate">Soupeř</span>
+        </div>
+        <div id="hud-opp-hp-bars" class="grid grid-cols-10 gap-1 h-2.5"></div>
+      </div>
+    </div>
 
-  if (animType === 'swarm') {
-    for (let i = 0; i < 6; i++) {
-      activeProjectiles.push({
-        animType: 'swarm',
-        sx, sy, tx, ty,
-        progress: -i * 0.08,
-        speed: 0.032,
-        offset: (i - 2.5) * 0.25,
-        color: color,
-        isLead: i === 5
-      });
-    }
-  } else {
-    activeProjectiles.push({
-      animType: animType,
-      sx, sy, tx, ty,
-      progress: 0,
-      speed: (animType === 'laser' || animType === 'ultimate') ? 0.045 : 0.028,
-      color: color,
-      isLead: true
-    });
-  }
-}
+    <!-- Spodní ovládací prvky: Vlevo Joystick, Vpravo tlačítko HIT -->
+    <div class="w-full flex items-end justify-between pb-3 sm:pb-6 px-2 sm:px-8">
+      <!-- Virtuální Joystick (Levá strana) -->
+      <div id="joystick-zone" class="pointer-events-auto relative w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-slate-900/60 border-2 border-cyan-500/35 backdrop-blur-sm flex items-center justify-center shadow-lg">
+        <div class="w-3 h-3 rounded-full bg-cyan-500/30"></div>
+        <div id="joystick-knob" class="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 border-2 border-white/80 shadow-[0_0_20px_rgba(6,182,212,0.7)] pointer-events-none transition-transform duration-75"></div>
+      </div>
 
-function executePlayerTurn(skillIndex) {
-  if (!gameState.isPlayerTurn || gameState.gameOver) return;
+      <!-- Nápověda pro PC uprostřed -->
+      <div class="hidden md:block text-[11px] font-mono-tech text-slate-400 bg-slate-950/70 px-3 py-1.5 rounded-xl border border-slate-800">
+        Pohyb: WASD / Šipky / Joystick • Útok: Mezerník / Tlačítko HIT
+      </div>
 
-  const skill = nationConfigs[chosenNation].skills[skillIndex];
-  if (gameState.playerEn < skill.cost) return;
+      <!-- Akční tlačítko HIT / BLAST (Pravá strana) -->
+      <button id="btn-hit" class="pointer-events-auto w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-rose-500 to-red-700 active:scale-90 border-4 border-rose-300/70 shadow-[0_0_30px_rgba(244,63,94,0.65)] flex flex-col items-center justify-center text-white font-black tracking-wider cursor-pointer transition-transform">
+        <span id="btn-hit-icon" class="text-2xl sm:text-3xl mb-0.5">🗡️</span>
+        <span id="btn-hit-label" class="text-sm sm:text-base">HIT</span>
+      </button>
+    </div>
+  </div>
 
-  gameState.playerEn -= skill.cost;
-  gameState.isPlayerTurn = false;
-  renderBaseButtons();
+  <!-- 4. OBRAZOVKA VÝSLEDKU DUELU (VÍTĚZSTVÍ / PORÁŽKA) -->
+  <div id="screen-gameover" class="hidden fixed inset-0 z-30 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-5">
+    <div class="max-w-sm w-full bg-slate-900 border-2 border-cyan-500/40 rounded-3xl p-7 text-center shadow-2xl">
+      <div id="gameover-emoji" class="text-5xl mb-3">🏆</div>
+      <h2 id="gameover-title" class="text-3xl font-black text-white mb-2">VÍTĚZSTVÍ!</h2>
+      <p id="gameover-desc" class="text-sm text-slate-300 mb-6">Porazil jsi soupeře v aréně.</p>
+      <button id="btn-back-queue" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black uppercase tracking-wider shadow-lg cursor-pointer">
+        ZPĚT DO QUEUE
+      </button>
+    </div>
+  </div>
 
-  const base = getActiveBase();
-  const isFlooded = gameState.floodedBases.includes(base.id);
-  const mult = isFlooded ? 0.85 : base.dmgMult;
+  <!-- FIREBASE + HERNÍ LOGIKA -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  if (skill.type === 'dmg') {
-    const raw = Math.floor(Math.random() * (skill.max - skill.min + 1)) + skill.min;
-    const dmg = Math.round(raw * mult);
-    spawnAttackVisual(true, skill.anim, skill.anim === 'swarm' ? '#10b981' : '#f97316');
-    dealDamageToEnemy(dmg, false);
-    addLog(`🎯 Ze stanoviště <b>${base.name}</b> jsi odpálil <b>${skill.name}</b> a zasáhl Atlantidu silou <b>${dmg}</b>!`);
-  } else if (skill.type === 'pierce') {
-    const dmg = Math.round(skill.val * mult);
-    spawnAttackVisual(true, 'laser', '#06b6d4');
-    dealDamageToEnemy(dmg, true);
-    addLog(`🛰️ <b>${skill.name}</b> prorazil Uzarův Hyper-štít a udělil <b>${dmg} HP</b> přímého poškození!`);
-  } else if (skill.type === 'shatter') {
-    const sDmg = Math.round(skill.shieldDmg * mult);
-    const hDmg = Math.round(skill.hpDmg * mult);
-    gameState.enemyShield = Math.max(0, gameState.enemyShield - sDmg);
-    spawnAttackVisual(true, 'emp', '#38bdf8');
-    dealDamageToEnemy(hDmg, false);
-    addLog(`💥 <b>${skill.name}</b> rozbil ${sDmg} bodů Hyper-štítu a způsobil <b>${hDmg}</b> poškození!`);
-  } else if (skill.type === 'sabotage') {
-    const dmg = Math.round(skill.val * mult);
-    gameState.enemyRage = Math.max(0, gameState.enemyRage - 40);
-    spawnAttackVisual(true, 'swarm', '#a855f7');
-    dealDamageToEnemy(dmg, false);
-    addLog(`🔧 <b>${skill.name}</b> narušil reaktory (-40% nabíjení Hyper-Novy) a udělil <b>${dmg}</b> poškození!`);
-  } else if (skill.type === 'def') {
-    gameState.playerShield += skill.shield;
-    gameState.playerHp = Math.min(gameState.playerMaxHp, gameState.playerHp + skill.heal);
-    shockwaves.push({ xPct: base.x, yPct: base.y, r: 8, maxR: 55, alpha: 1, color: '#10b981' });
-    addLog(`🛡️ Aktivoval jsi <b>${skill.name}</b> (+${skill.shield} štít, +${skill.heal} HP).`);
-  } else if (skill.type === 'recharge') {
-    gameState.playerEn = Math.min(100, gameState.playerEn + skill.en);
-    gameState.playerHp = Math.min(gameState.playerMaxHp, gameState.playerHp + skill.heal);
-    shockwaves.push({ xPct: base.x, yPct: base.y, r: 8, maxR: 45, alpha: 1, color: '#38bdf8' });
-    addLog(`🔋 <b>${skill.name}</b> doplnil +${skill.en} energie a opravil +${skill.heal} HP.`);
-  } else if (skill.type === 'ultimate') {
-    const dmg = Math.round(skill.val * mult);
-    spawnAttackVisual(true, 'ultimate', '#fbbf24');
-    triggerArenaShake();
-    dealDamageToEnemy(dmg, true);
-    addLog(`☢️ <b>${skill.name}</b>! Masivní výboj otřásl Antarktidou a způsobil <b>${dmg} HP</b>!`);
-  } else if (skill.type === 'ultimate_def') {
-    const dmg = Math.round(skill.val * mult);
-    gameState.playerShield += skill.shield;
-    spawnAttackVisual(true, 'ultimate', '#fbbf24');
-    triggerArenaShake();
-    dealDamageToEnemy(dmg, true);
-    addLog(`☄️ <b>${skill.name}</b>! Udělil jsi <b>${dmg} HP</b> a posílil obranu o +${skill.shield} štít!`);
-  }
+    // =========================================================================
+    // 1. INICIALIZACE FIREBASE (PRO ONLINE MATCHMAKING A DUEL)
+    // =========================================================================
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'dagger-duel-default';
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let firebaseReady = false;
 
-  checkUzarPhase();
-  updateUI();
+    async function initFirebase() {
+      try {
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
 
-  if (gameState.enemyHp <= 0) {
-    finishGame(true);
-    return;
-  }
-
-  setTimeout(executeUzarTurn, 1050);
-}
-
-function dealDamageToEnemy(dmg, ignoreShield) {
-  if (ignoreShield) {
-    gameState.enemyHp = Math.max(0, gameState.enemyHp - dmg);
-  } else {
-    if (gameState.enemyShield >= dmg) {
-      gameState.enemyShield -= dmg;
-    } else {
-      const rem = dmg - gameState.enemyShield;
-      gameState.enemyShield = 0;
-      gameState.enemyHp = Math.max(0, gameState.enemyHp - rem);
-    }
-  }
-}
-
-function checkUzarPhase() {
-  if (gameState.phase === 1 && gameState.enemyHp <= 8000) {
-    gameState.phase = 2;
-    gameState.enemyShield += 900;
-    document.getElementById('boss-phase-badge').textContent = 'UZAR: FÁZE 2/3 – IMPERIÁLNÍ ZUŘIVOST';
-    triggerArenaShake();
-    addLog(`👑 <b>UZAR MCVIII PŘEPÍNÁ DO 2. FÁZE!</b> Citadela Highwater obnovila +900 Hyper-štítu a zvyšuje poškození všech útoků o 25%!`, 'boss-phase');
-  } else if (gameState.phase === 2 && gameState.enemyHp <= 4000) {
-    gameState.phase = 3;
-    gameState.enemyShield += 1200;
-    gameState.enemyHp += 1000;
-    document.getElementById('boss-phase-badge').textContent = 'UZAR: FÁZE 3/3 – BOŽSKÁ DOMINANCE';
-    triggerArenaShake();
-    addLog(`🔥 <b>KRITICKÝ BUFF – 3. FÁZE BOŽSKÉ DOMINANCE!</b> Uzar MCVIII přetížil geotermální jádro (+1 000 HP, +1 200 Hyper-štít) a útočí drtivou silou!`, 'boss-phase');
-  }
-}
-
-function executeUzarTurn() {
-  if (gameState.gameOver) return;
-
-  const base = getActiveBase();
-  const isFlooded = gameState.floodedBases.includes(base.id);
-  const defMult = isFlooded ? 1.25 : base.defMult;
-  const phaseMult = gameState.phase === 1 ? 1.0 : (gameState.phase === 2 ? 1.25 : 1.55);
-
-  // Uzarova ultimátní Hyper-Nova při 100% nabití
-  if (gameState.enemyRage >= 100) {
-    gameState.enemyRage = 0;
-    const novaDmg = Math.round(780 * defMult);
-    spawnAttackVisual(false, 'ultimate', '#f59e0b');
-    triggerArenaShake();
-    applyDamageToPlayer(novaDmg, false);
-    addLog(`💀 <b>UZAR MCVIII ODPÁLIL HYPER-NOVU ATLANTIDY!</b> Globální tlaková vlna zasáhla stanoviště ${base.name} silou <b>${novaDmg}</b>!`, 'enemy-turn');
-  } else {
-    const move = gameState.nextEnemyMove;
-    gameState.enemyRage = Math.min(100, gameState.enemyRage + 25);
-
-    if (move.type === 'dmg') {
-      const raw = Math.floor(Math.random() * (move.max - move.min + 1)) + move.min;
-      const dmg = Math.round(raw * phaseMult * defMult);
-      spawnAttackVisual(false, move.anim, '#ef4444');
-      applyDamageToPlayer(dmg, false);
-      addLog(`🔱 Uzar zaútočil schopností <b>${move.name}</b> na ${base.name} silou <b>${dmg}</b>!`, 'enemy-turn');
-    } else if (move.type === 'pierce') {
-      const raw = Math.floor(Math.random() * (move.max - move.min + 1)) + move.min;
-      const dmg = Math.round(raw * phaseMult * defMult);
-      spawnAttackVisual(false, 'laser', '#f59e0b');
-      applyDamageToPlayer(dmg, true);
-      addLog(`🔱 <b>${move.name}</b> prorazil tvoje štíty a způsobil <b>${dmg}</b> přímého poškození!`, 'enemy-turn');
-    } else if (move.type === 'multi') {
-      const h1 = Math.round((Math.floor(Math.random() * (move.max - move.min + 1)) + move.min) * phaseMult * defMult);
-      const h2 = Math.round((Math.floor(Math.random() * (move.max - move.min + 1)) + move.min) * phaseMult * defMult);
-      spawnAttackVisual(false, 'swarm', '#a855f7');
-      applyDamageToPlayer(h1 + h2, false);
-      addLog(`🦖 <b>${move.name}</b>! Dva oživení dinosauři udeřili za ${h1} a ${h2} (Celkem <b>${h1 + h2}</b>)!`, 'enemy-turn');
-    } else if (move.type === 'heal_shield') {
-      gameState.enemyShield += move.shield;
-      gameState.enemyHp = Math.min(gameState.enemyMaxHp, gameState.enemyHp + move.heal);
-      shockwaves.push({ xPct: UZAR_HQ.x, yPct: UZAR_HQ.y, r: 10, maxR: 70, alpha: 1, color: '#f59e0b' });
-      addLog(`👑 Uzar aktivoval <b>${move.name}</b> (+${move.shield} Hyper-štít, +${move.heal} HP).`, 'enemy-turn');
-    } else if (move.type === 'flood') {
-      const raw = Math.floor(Math.random() * (move.max - move.min + 1)) + move.min;
-      const dmg = Math.round(raw * phaseMult * defMult);
-      spawnAttackVisual(false, 'emp', '#38bdf8');
-      applyDamageToPlayer(dmg, false);
-      if (!gameState.floodedBases.includes(base.id) && gameState.floodedBases.length < 3) {
-        gameState.floodedBases.push(base.id);
-        addLog(`🌊 <b>${move.name}</b>! Uzar udělil <b>${dmg}</b> poškození a zaplavil stanoviště <b>${base.name}</b> (přesuňte velení jinam)!`, 'enemy-turn');
-      } else {
-        addLog(`🌊 <b>${move.name}</b> zasáhla ${base.name} silou <b>${dmg}</b>!`, 'enemy-turn');
-      }
-    }
-  }
-
-  // Pasivní regenerace posíleného Uzara
-  const passiveRegen = 140 * gameState.phase;
-  gameState.enemyHp = Math.min(gameState.enemyMaxHp, gameState.enemyHp + passiveRegen);
-
-  if (gameState.playerHp <= 0) {
-    updateUI();
-    finishGame(false);
-    return;
-  }
-
-  gameState.turn += 1;
-  const enGain = isFlooded ? 12 : base.enRegen;
-  gameState.playerEn = Math.min(100, gameState.playerEn + enGain);
-
-  if (gameState.enemyRage >= 100) {
-    gameState.nextEnemyMove = { intent: '🚨 POPLACH: Uzar má 100% energie! Příští tah odpálí HYPER-NOVU ATLANTIDY!' };
-  } else {
-    gameState.nextEnemyMove = uzarArsenal[Math.floor(Math.random() * uzarArsenal.length)];
-  }
-
-  gameState.isPlayerTurn = true;
-  renderBaseButtons();
-  updateUI();
-}
-
-function applyDamageToPlayer(dmg, ignoreShield) {
-  if (ignoreShield) {
-    gameState.playerHp = Math.max(0, gameState.playerHp - dmg);
-  } else {
-    if (gameState.playerShield >= dmg) {
-      gameState.playerShield -= dmg;
-    } else {
-      const rem = dmg - gameState.playerShield;
-      gameState.playerShield = 0;
-      gameState.playerHp = Math.max(0, gameState.playerHp - rem);
-    }
-  }
-}
-
-function updateUI() {
-  const base = getActiveBase();
-  const isFlooded = gameState.floodedBases.includes(base.id);
-
-  document.getElementById('turn-counter').textContent = `TAH ${gameState.turn}`;
-  document.getElementById('enemy-intent').textContent = gameState.nextEnemyMove.intent;
-  document.getElementById('current-base-bonus').textContent = `Aktivní velení: ${base.name} (${isFlooded ? 'ZAPLAVENO' : base.bonus})`;
-  document.getElementById('current-base-bonus').style.color = isFlooded ? '#f87171' : '#10b981';
-
-  document.getElementById('player-hp-text').textContent = `${gameState.playerHp} / ${gameState.playerMaxHp}`;
-  document.getElementById('player-hp-bar').style.width = `${(gameState.playerHp / gameState.playerMaxHp) * 100}%`;
-  document.getElementById('player-en-text').textContent = `${gameState.playerEn} / 100`;
-  document.getElementById('player-en-bar').style.width = `${gameState.playerEn}%`;
-  document.getElementById('player-shield').textContent = `🛡️ Štít: ${gameState.playerShield}`;
-
-  document.getElementById('enemy-hp-text').textContent = `${gameState.enemyHp} / ${gameState.enemyMaxHp}`;
-  document.getElementById('enemy-hp-bar').style.width = `${(gameState.enemyHp / gameState.enemyMaxHp) * 100}%`;
-  document.getElementById('enemy-shield').textContent = `🛡️ Hyper-štít: ${gameState.enemyShield}`;
-  document.getElementById('enemy-rage-text').textContent = `${gameState.enemyRage}%`;
-  document.getElementById('enemy-rage-bar').style.width = `${gameState.enemyRage}%`;
-
-  renderSkills();
-}
-
-function addLog(htmlText, extraClass = '') {
-  const logBox = document.getElementById('combat-log');
-  const entry = document.createElement('div');
-  entry.className = `log-entry ${extraClass}`;
-  entry.innerHTML = htmlText;
-  logBox.appendChild(entry);
-  logBox.scrollTop = logBox.scrollHeight;
-}
-
-function finishGame(playerWon) {
-  gameState.gameOver = true;
-  renderSkills();
-  renderBaseButtons();
-
-  const endBanner = document.getElementById('end-screen');
-  const endTitle = document.getElementById('end-title');
-  const endDesc = document.getElementById('end-desc');
-
-  endBanner.style.display = 'block';
-
-  if (playerWon) {
-    endBanner.className = 'end-banner win';
-    endTitle.textContent = '🏆 HISTORICKÝ TRIUMF! Porazil jsi posíleného Uzara MCVIII!';
-    endDesc.textContent = `Neuvěřitelný strategický výkon! Velitelství státu ${nationConfigs[chosenNation].label} v ${gameState.turn}. tahu zničilo 12 000 HP Citadely Highwater a odrazilo globální invazi Atlantidy.`;
-    addLog('🏆 VÍTĚZSTVÍ: Podařilo se ti zastavit Uzara MCVIII v režimu Overdrive!', 'system-msg');
-  } else {
-    endBanner.className = 'end-banner lose';
-    endTitle.textContent = '🌊 PORÁŽKA! Uzar MCVIII ovládl celou planetu.';
-    endDesc.textContent = `V ${gameState.turn}. tahu drtivá síla posíleného Uzara rozdrtila tvá stanoviště. Území státu ${nationConfigs[chosenNation].label} bylo úspěšně utopeno a anektováno pod velením Uzara MCVIII.`;
-    addLog('💀 Konec hry: Byli jste úspěšně utopeni pod velením Uzara MCVIII.', 'enemy-turn');
-  }
-}
-
-// ========================================================
-// 4. VYKRESLOVÁNÍ INTERAKTIVNÍ MAPY SVĚTA A ANIMACÍ ÚTOKŮ
-// ========================================================
-function startWorldMapLoop() {
-  const mapCanvas = document.getElementById('world-map-canvas');
-  const mCtx = mapCanvas.getContext('2d');
-  let radarAngle = 0;
-
-  mapCanvas.onclick = (e) => {
-    if (!gameState.isPlayerTurn || gameState.gameOver) return;
-    const rect = mapCanvas.getBoundingClientRect();
-    const cx = e.clientX - rect.left;
-    const cy = e.clientY - rect.top;
-
-    const bases = nationConfigs[chosenNation].bases;
-    bases.forEach(b => {
-      const bx = b.x * rect.width;
-      const by = b.y * rect.height;
-      if (Math.hypot(cx - bx, cy - by) < 28) {
-        switchBase(b.id);
-      }
-    });
-  };
-
-  function spawnImpactBurst(x, y, color) {
-    shockwaves.push({ x, y, r: 6, maxR: 65, alpha: 1, color });
-    for (let i = 0; i < 18; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const spd = 1 + Math.random() * 3.5;
-      explosionParticles.push({
-        x, y,
-        vx: Math.cos(ang) * spd,
-        vy: Math.sin(ang) * spd,
-        alpha: 1,
-        color
-      });
-    }
-  }
-
-  function drawWorld() {
-    const rect = mapCanvas.getBoundingClientRect();
-    if (mapCanvas.width !== rect.width || mapCanvas.height !== rect.height) {
-      mapCanvas.width = rect.width;
-      mapCanvas.height = rect.height;
-    }
-
-    const w = mapCanvas.width;
-    const h = mapCanvas.height;
-    mCtx.clearRect(0, 0, w, h);
-
-    // 1. Souřadnicová síť glóbu
-    mCtx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
-    mCtx.lineWidth = 1;
-    for (let x = 0; x < w; x += w / 12) {
-      mCtx.beginPath(); mCtx.moveTo(x, 0); mCtx.lineTo(x, h); mCtx.stroke();
-    }
-    for (let y = 0; y < h; y += h / 6) {
-      mCtx.beginPath(); mCtx.moveTo(0, y); mCtx.lineTo(w, y); mCtx.stroke();
-    }
-
-    // 2. Kontinenty světa
-    WORLD_CONTINENTS.forEach((poly, idx) => {
-      const isAntarctica = idx === WORLD_CONTINENTS.length - 1;
-      mCtx.beginPath();
-      poly.forEach((pt, i) => {
-        const px = pt[0] * w;
-        const py = pt[1] * h;
-        if (i === 0) mCtx.moveTo(px, py);
-        else mCtx.lineTo(px, py);
-      });
-      mCtx.closePath();
-      mCtx.fillStyle = isAntarctica ? 'rgba(245, 158, 11, 0.16)' : 'rgba(14, 116, 144, 0.18)';
-      mCtx.strokeStyle = isAntarctica ? 'rgba(245, 158, 11, 0.55)' : 'rgba(34, 211, 238, 0.35)';
-      mCtx.lineWidth = 1.4;
-      mCtx.fill();
-      mCtx.stroke();
-    });
-
-    // 3. Uzarův globální radar z Antarktidy
-    const uzarX = UZAR_HQ.x * w;
-    const uzarY = UZAR_HQ.y * h;
-    radarAngle += 0.02;
-    mCtx.save();
-    mCtx.translate(uzarX, uzarY);
-    mCtx.rotate(radarAngle);
-    const rGrad = mCtx.createLinearGradient(0, 0, 180, 0);
-    rGrad.addColorStop(0, 'rgba(245, 158, 11, 0.32)');
-    rGrad.addColorStop(1, 'rgba(168, 85, 247, 0)');
-    mCtx.fillStyle = rGrad;
-    mCtx.beginPath();
-    mCtx.moveTo(0, 0);
-    mCtx.arc(0, 0, 180, -0.22, 0.22);
-    mCtx.closePath();
-    mCtx.fill();
-    mCtx.restore();
-
-    // 4. Zaměřovací oblouk mezi aktivním stanovištěm a Uzarem
-    const activeBase = getActiveBase();
-    const actX = activeBase.x * w;
-    const actY = activeBase.y * h;
-    mCtx.save();
-    mCtx.setLineDash([5, 5]);
-    mCtx.strokeStyle = 'rgba(16, 185, 129, 0.45)';
-    mCtx.lineWidth = 1.5;
-    mCtx.beginPath();
-    mCtx.moveTo(actX, actY);
-    mCtx.quadraticCurveTo((actX + uzarX) / 2, Math.min(actY, uzarY) - 45, uzarX, uzarY);
-    mCtx.stroke();
-    mCtx.restore();
-
-    // 5. Vykreslení stanovišť hráče
-    const bases = nationConfigs[chosenNation].bases;
-    bases.forEach(b => {
-      const bx = b.x * w;
-      const by = b.y * h;
-      const isSelected = gameState.activeBaseId === b.id;
-      const isFlooded = gameState.floodedBases.includes(b.id);
-
-      mCtx.beginPath();
-      mCtx.arc(bx, by, isSelected ? 15 : 10, 0, Math.PI * 2);
-      mCtx.fillStyle = isFlooded ? 'rgba(239, 68, 68, 0.28)' : (isSelected ? 'rgba(16, 185, 129, 0.32)' : 'rgba(6, 182, 212, 0.2)');
-      mCtx.fill();
-
-      mCtx.beginPath();
-      mCtx.arc(bx, by, 6.5, 0, Math.PI * 2);
-      mCtx.fillStyle = isFlooded ? '#ef4444' : (isSelected ? '#10b981' : '#06b6d4');
-      mCtx.fill();
-
-      mCtx.fillStyle = isFlooded ? '#fca5a5' : '#f0f9ff';
-      mCtx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
-      mCtx.textAlign = 'center';
-      mCtx.fillText(b.name, bx, by - 16);
-
-      if (isSelected) {
-        mCtx.fillStyle = '#34d399';
-        mCtx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
-        mCtx.fillText('▲ VELENÍ', bx, by + 22);
-      }
-    });
-
-    // 6. Vykreslení Uzarovy Citadely
-    mCtx.beginPath();
-    mCtx.arc(uzarX, uzarY, 18, 0, Math.PI * 2);
-    mCtx.fillStyle = 'rgba(245, 158, 11, 0.3)';
-    mCtx.fill();
-
-    mCtx.beginPath();
-    mCtx.arc(uzarX, uzarY, 9, 0, Math.PI * 2);
-    mCtx.fillStyle = '#f59e0b';
-    mCtx.fill();
-
-    mCtx.fillStyle = '#fde68a';
-    mCtx.font = 'bold 12px "Space Grotesk", sans-serif';
-    mCtx.textAlign = 'center';
-    mCtx.fillText(UZAR_HQ.name, uzarX, uzarY - 20);
-
-    // 7. Animace různých typů útoků
-    for (let i = activeProjectiles.length - 1; i >= 0; i--) {
-      const p = activeProjectiles[i];
-      p.progress += p.speed;
-      if (p.progress < 0) continue;
-
-      const t = Math.min(1, p.progress);
-      const x1 = p.sx * w;
-      const y1 = p.sy * h;
-      const x2 = p.tx * w;
-      const y2 = p.ty * h;
-
-      if (p.animType === 'missile') {
-        // Balistická oblouková střela s ohnivou stopou
-        const midX = (x1 + x2) / 2;
-        const midY = Math.min(y1, y2) - 55;
-        const cx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * midX + t * t * x2;
-        const cy = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * midY + t * t * y2;
-
-        mCtx.beginPath();
-        mCtx.moveTo(x1, y1);
-        mCtx.quadraticCurveTo(midX, midY, cx, cy);
-        mCtx.strokeStyle = p.color;
-        mCtx.lineWidth = 2.5;
-        mCtx.stroke();
-
-        mCtx.beginPath();
-        mCtx.arc(cx, cy, 5, 0, Math.PI * 2);
-        mCtx.fillStyle = '#ffffff';
-        mCtx.fill();
-      } else if (p.animType === 'laser' || p.animType === 'ultimate') {
-        // Orbitální laserový paprsek + přímý energetický výboj
-        mCtx.save();
-        mCtx.strokeStyle = p.color;
-        mCtx.lineWidth = p.animType === 'ultimate' ? 8 : 5;
-        mCtx.shadowBlur = 16;
-        mCtx.shadowColor = p.color;
-        mCtx.beginPath();
-        mCtx.moveTo(x1, y1);
-        mCtx.lineTo(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t);
-        mCtx.stroke();
-
-        // Paprsek z vesmíru přímo na cíl
-        mCtx.beginPath();
-        mCtx.moveTo(x2, 0);
-        mCtx.lineTo(x2, y2 * t);
-        mCtx.stroke();
-        mCtx.restore();
-      } else if (p.animType === 'swarm') {
-        // Roj dronů / dinosaurů v sinusové formaci
-        const perp = Math.sin(t * Math.PI) * 35 * p.offset;
-        const cx = x1 + (x2 - x1) * t + perp;
-        const cy = y1 + (y2 - y1) * t;
-        mCtx.beginPath();
-        mCtx.arc(cx, cy, 4, 0, Math.PI * 2);
-        mCtx.fillStyle = p.color;
-        mCtx.fill();
-      } else if (p.animType === 'emp') {
-        // Klikatý EMP výboj
-        mCtx.save();
-        mCtx.strokeStyle = p.color;
-        mCtx.lineWidth = 2.5;
-        mCtx.beginPath();
-        mCtx.moveTo(x1, y1);
-        for (let s = 1; s <= 8; s++) {
-          const st = (s / 8) * t;
-          const jx = (Math.random() - 0.5) * 18;
-          const jy = (Math.random() - 0.5) * 18;
-          mCtx.lineTo(x1 + (x2 - x1) * st + jx, y1 + (y2 - y1) * st + jy);
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            const cred = await signInWithCustomToken(auth, __initial_auth_token);
+            currentUser = cred.user;
+          } else {
+            const cred = await signInAnonymously(auth);
+            currentUser = cred.user;
+          }
+          firebaseReady = true;
+          startQueueListener();
         }
-        mCtx.stroke();
-        mCtx.restore();
+      } catch (err) {
+        console.warn("Firebase offline fallback:", err);
       }
+    }
 
-      if (p.progress >= 1) {
-        if (p.isLead) {
-          spawnImpactBurst(x2, y2, p.color);
-          if (p.animType === 'ultimate') {
-            shockwaves.push({ x: x2, y: y2, r: 15, maxR: 110, alpha: 1, color: '#a855f7' });
+    // =========================================================================
+    // 2. STAV HRY A PROMĚNNÉ
+    // =========================================================================
+    let gamePhase = 'queue'; // 'queue' | 'naming' | 'playing' | 'gameover'
+    let isBotMode = false;
+    let inQueue = false;
+    let myUid = crypto.randomUUID();
+    let activeMatchId = null;
+    let playerSlot = 'p1'; // 'p1' nebo 'p2'
+    let unsubQueue = null;
+    let unsubMatch = null;
+    let lastSyncTime = 0;
+
+    // Herní entity v aréně (normalizované souřadnice 0..1)
+    const me = {
+      name: 'Hráč 1',
+      x: 0.25,
+      y: 0.5,
+      angle: 0,
+      hp: 10,
+      maxHp: 10,
+      isRhvx0: false,
+      lastAttackAt: 0,
+      swingProgress: 0
+    };
+
+    const opp = {
+      name: 'Soupeř',
+      x: 0.75,
+      y: 0.5,
+      angle: Math.PI,
+      hp: 10,
+      maxHp: 10,
+      isRhvx0: false,
+      lastAttackAt: 0,
+      swingProgress: 0
+    };
+
+    // Vizuální efekty na plátně
+    let blasterBeams = [];
+    let slashArcs = [];
+    let floatingTexts = [];
+    let particles = [];
+
+    // Ovládání (Joystick + klávesnice)
+    const joyVec = { x: 0, y: 0 };
+    const keys = {};
+
+    // DOM Reference
+    const canvas = document.getElementById('arena-canvas');
+    const ctx = canvas.getContext('2d');
+    const screenQueue = document.getElementById('screen-queue');
+    const screenName = document.getElementById('screen-name');
+    const screenHud = document.getElementById('screen-hud');
+    const screenGameover = document.getElementById('screen-gameover');
+
+    const btnQueue = document.getElementById('btn-queue');
+    const queueStatusText = document.getElementById('queue-status-text');
+    const queueSubtext = document.getElementById('queue-subtext');
+    const inputNickname = document.getElementById('input-nickname');
+    const secretBadge = document.getElementById('secret-weapon-badge');
+
+    // =========================================================================
+    // 3. ONLINE QUEUE & MATCHMAKING (STATUS ?/2)
+    // =========================================================================
+    function startQueueListener() {
+      if (!firebaseReady || !currentUser) return;
+      myUid = currentUser.uid;
+      const queueCol = collection(db, 'artifacts', appId, 'public', 'data', 'duel_queue');
+
+      unsubQueue = onSnapshot(queueCol, async (snapshot) => {
+        if (gamePhase !== 'queue') return;
+
+        const now = Date.now();
+        const activePlayers = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          // Ignorovat neaktivní záznamy starší než 45 sekund
+          if (data && now - (data.joinedAt || 0) < 45000) {
+            activePlayers.push({ id: docSnap.id, ...data });
+          }
+        });
+
+        // Seřadit podle času připojení
+        activePlayers.sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+
+        // Pokud už má někdo z nás přiřazený matchId, připojit se do něj
+        const myEntry = activePlayers.find(p => p.id === myUid);
+        if (myEntry && myEntry.matchId) {
+          inQueue = false;
+          enterNamingPhase(myEntry.matchId, myEntry.slot || 'p1', false);
+          return;
+        }
+
+        const displayCount = Math.min(2, activePlayers.length);
+        queueStatusText.textContent = `Status: ${displayCount}/2`;
+
+        if (inQueue) {
+          queueSubtext.textContent = displayCount < 2
+            ? 'Hledám soupeře v reálném čase...'
+            : 'Status: 2/2! Připravuji arénu...';
+        }
+
+        // Když jsou ve frontě alespoň 2 hráči, první z dvojice vytvoří zápas pro oba
+        if (inQueue && activePlayers.length >= 2) {
+          const p1 = activePlayers[0];
+          const p2 = activePlayers[1];
+          if (p1.id === myUid) {
+            const matchId = `match_${p1.id}_${p2.id}_${Date.now()}`;
+            const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'duel_matches', matchId);
+            await setDoc(matchRef, {
+              status: 'naming',
+              createdAt: Date.now(),
+              p1: { uid: p1.id, ready: false, name: '', x: 0.22, y: 0.5, angle: 0, hp: 10, isRhvx0: false, attackSeq: 0 },
+              p2: { uid: p2.id, ready: false, name: '', x: 0.78, y: 0.5, angle: Math.PI, hp: 10, isRhvx0: false, attackSeq: 0 }
+            });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'duel_queue', p1.id), { matchId, slot: 'p1' });
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'duel_queue', p2.id), { matchId, slot: 'p2' });
           }
         }
-        activeProjectiles.splice(i, 1);
+      }, (err) => {
+        console.warn("Queue snapshot error:", err);
+      });
+    }
+
+    btnQueue.addEventListener('click', async () => {
+      if (!inQueue) {
+        inQueue = true;
+        btnQueue.textContent = 'IN QUEUE...';
+        btnQueue.classList.remove('from-cyan-500', 'to-blue-600');
+        btnQueue.classList.add('from-amber-500', 'to-orange-600');
+        queueStatusText.textContent = 'Status: 1/2';
+        queueSubtext.textContent = 'Čekání na druhého hráče (otevři hru v 2. okně nebo dej Rychlý test)...';
+
+        if (firebaseReady && currentUser) {
+          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'duel_queue', myUid), {
+            uid: myUid,
+            joinedAt: Date.now(),
+            matchId: null
+          });
+        }
+      } else {
+        // Opuštění fronty
+        inQueue = false;
+        btnQueue.textContent = 'QUEUE';
+        btnQueue.classList.add('from-cyan-500', 'to-blue-600');
+        btnQueue.classList.remove('from-amber-500', 'to-orange-600');
+        queueStatusText.textContent = 'Status: 0/2';
+        queueSubtext.textContent = 'Klikni na QUEUE pro vstup do online fronty';
+
+        if (firebaseReady && currentUser) {
+          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'duel_queue', myUid)).catch(() => {});
+        }
+      }
+    });
+
+    // Tlačítko pro okamžitý test 2/2 bez nutnosti otevírat druhé okno
+    document.getElementById('btn-instant-bot').addEventListener('click', () => {
+      queueStatusText.textContent = 'Status: 2/2';
+      setTimeout(() => {
+        enterNamingPhase('local_bot_match', 'p1', true);
+      }, 280);
+    });
+
+    // =========================================================================
+    // 4. VÝBĚR HERNÍHO JMÉNA & TAJNÝ EASTER EGG "rhvx0"
+    // =========================================================================
+    function enterNamingPhase(matchId, slot, botMode) {
+      gamePhase = 'naming';
+      activeMatchId = matchId;
+      playerSlot = slot;
+      isBotMode = botMode;
+
+      screenQueue.classList.add('hidden');
+      screenName.classList.remove('hidden');
+      inputNickname.value = '';
+      secretBadge.classList.add('hidden');
+      document.getElementById('waiting-opponent-msg').classList.add('hidden');
+      inputNickname.focus();
+
+      // Odstranit se z fronty
+      if (firebaseReady && currentUser && !botMode) {
+        deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'duel_queue', myUid)).catch(() => {});
+        listenToMatch(matchId);
       }
     }
 
-    // 8. Tlakové vlny a exploze při zásahu
-    for (let i = shockwaves.length - 1; i >= 0; i--) {
-      const sw = shockwaves[i];
-      const sx = sw.xPct ? sw.xPct * w : sw.x;
-      const sy = sw.yPct ? sw.yPct * h : sw.y;
-      sw.r += 2.2;
-      sw.alpha -= 0.03;
-      if (sw.alpha <= 0) {
-        shockwaves.splice(i, 1);
-        continue;
+    // Živá detekce jména rhvx0 při psaní
+    inputNickname.addEventListener('input', () => {
+      const val = inputNickname.value.trim();
+      if (val === 'rhvx0') {
+        secretBadge.classList.remove('hidden');
+      } else {
+        secretBadge.classList.add('hidden');
       }
-      mCtx.save();
-      mCtx.beginPath();
-      mCtx.arc(sx, sy, sw.r, 0, Math.PI * 2);
-      mCtx.strokeStyle = sw.color;
-      mCtx.globalAlpha = Math.max(0, sw.alpha);
-      mCtx.lineWidth = 2.5;
-      mCtx.stroke();
-      mCtx.restore();
+    });
+
+    document.getElementById('btn-ready').addEventListener('click', async () => {
+      const rawName = inputNickname.value.trim();
+      const chosenName = rawName.length > 0 ? rawName : 'Bojovník';
+      const hasBlaster = (chosenName === 'rhvx0');
+
+      me.name = chosenName;
+      me.isRhvx0 = hasBlaster;
+      me.hp = 10;
+      me.x = playerSlot === 'p1' ? 0.22 : 0.78;
+      me.y = 0.5;
+      me.angle = playerSlot === 'p1' ? 0 : Math.PI;
+
+      if (isBotMode) {
+        opp.name = 'ShadowBot';
+        opp.isRhvx0 = false;
+        opp.hp = 10;
+        opp.x = 0.78;
+        opp.y = 0.5;
+        opp.angle = Math.PI;
+        startDuelArena();
+      } else if (firebaseReady && activeMatchId) {
+        document.getElementById('waiting-opponent-msg').classList.remove('hidden');
+        const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'duel_matches', activeMatchId);
+        await updateDoc(matchRef, {
+          [`${playerSlot}.name`]: chosenName,
+          [`${playerSlot}.isRhvx0`]: hasBlaster,
+          [`${playerSlot}.ready`]: true,
+          [`${playerSlot}.hp`]: 10
+        });
+      }
+    });
+
+    let lastOppAttackSeq = 0;
+
+    function listenToMatch(matchId) {
+      const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'duel_matches', matchId);
+      const oppSlot = playerSlot === 'p1' ? 'p2' : 'p1';
+
+      unsubMatch = onSnapshot(matchRef, (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
+        const myData = data[playerSlot];
+        const oppData = data[oppSlot];
+
+        if (!myData || !oppData) return;
+
+        // Jakmile jsou oba hráči připraveni se jménem, spustit arénu
+        if (gamePhase === 'naming' && myData.ready && oppData.ready) {
+          opp.name = oppData.name || 'Soupeř';
+          opp.isRhvx0 = !!oppData.isRhvx0;
+          opp.hp = oppData.hp ?? 10;
+          opp.x = oppData.x ?? 0.78;
+          opp.y = oppData.y ?? 0.5;
+          startDuelArena();
+        }
+
+        if (gamePhase === 'playing') {
+          // Aktualizace pozice a HP soupeře
+          opp.x = oppData.x;
+          opp.y = oppData.y;
+          opp.angle = oppData.angle;
+          opp.hp = oppData.hp;
+          opp.isRhvx0 = !!oppData.isRhvx0;
+
+          // Pokud mě soupeř zasáhl, aktualizovat moje HP
+          if (myData.hp < me.hp) {
+            const dmgTaken = me.hp - myData.hp;
+            me.hp = myData.hp;
+            spawnFloatingText(me.x, me.y - 0.05, `-${dmgTaken} HP`, '#f43f5e');
+            triggerScreenShake();
+            updateHudBars();
+          }
+
+          // Vizuální efekt útoku soupeře
+          if ((oppData.attackSeq || 0) > lastOppAttackSeq) {
+            lastOppAttackSeq = oppData.attackSeq;
+            if (opp.isRhvx0) {
+              triggerBlasterEffect(opp, me, false);
+            } else {
+              opp.swingProgress = 1;
+              slashArcs.push({ x: opp.x, y: opp.y, angle: opp.angle, alpha: 1, color: '#fb7185' });
+            }
+          }
+
+          updateHudBars();
+
+          if (me.hp <= 0) {
+            endDuel(false);
+          } else if (opp.hp <= 0) {
+            endDuel(true);
+          }
+        }
+      });
     }
 
-    for (let i = explosionParticles.length - 1; i >= 0; i--) {
-      const ep = explosionParticles[i];
-      ep.x += ep.vx;
-      ep.y += ep.vy;
-      ep.alpha -= 0.035;
-      if (ep.alpha <= 0) {
-        explosionParticles.splice(i, 1);
-        continue;
+    // =========================================================================
+    // 5. SPUŠTĚNÍ 2D ARÉNY A ÚTOKY (10 HITŮ DÝKOU VS ONE-SHOT BLASTER)
+    // =========================================================================
+    function startDuelArena() {
+      gamePhase = 'playing';
+      screenName.classList.add('hidden');
+      screenHud.classList.remove('hidden');
+
+      document.getElementById('hud-my-name').textContent = me.isRhvx0 ? `☢️ ${me.name}` : `🗡️ ${me.name}`;
+      document.getElementById('hud-opp-name').textContent = opp.isRhvx0 ? `☢️ ${opp.name}` : `🗡️ ${opp.name}`;
+
+      // Nastavit vzhled tlačítka útoku podle zbraně (Dýka vs Gigantický Blaster pro rhvx0)
+      const hitBtn = document.getElementById('btn-hit');
+      const hitIcon = document.getElementById('btn-hit-icon');
+      const hitLabel = document.getElementById('btn-hit-label');
+
+      if (me.isRhvx0) {
+        hitIcon.textContent = '🔫';
+        hitLabel.textContent = 'BLAST';
+        hitBtn.className = 'pointer-events-auto w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-purple-700 active:scale-90 border-4 border-amber-200 shadow-[0_0_40px_rgba(245,158,11,0.9)] flex flex-col items-center justify-center text-white font-black tracking-wider cursor-pointer transition-transform';
+      } else {
+        hitIcon.textContent = '🗡️';
+        hitLabel.textContent = 'HIT';
+        hitBtn.className = 'pointer-events-auto w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-rose-500 to-red-700 active:scale-90 border-4 border-rose-300/70 shadow-[0_0_30px_rgba(244,63,94,0.65)] flex flex-col items-center justify-center text-white font-black tracking-wider cursor-pointer transition-transform';
       }
-      mCtx.save();
-      mCtx.globalAlpha = Math.max(0, ep.alpha);
-      mCtx.beginPath();
-      mCtx.arc(ep.x, ep.y, 3, 0, Math.PI * 2);
-      mCtx.fillStyle = ep.color;
-      mCtx.fill();
-      mCtx.restore();
+
+      updateHudBars();
     }
 
-    mapAnimFrame = requestAnimationFrame(drawWorld);
-  }
+    function updateHudBars() {
+      document.getElementById('hud-my-hp-text').textContent = `${Math.max(0, me.hp)}/10 HP`;
+      document.getElementById('hud-opp-hp-text').textContent = `${Math.max(0, opp.hp)}/10 HP`;
 
-  drawWorld();
-}
-</script>
+      const myContainer = document.getElementById('hud-my-hp-bars');
+      const oppContainer = document.getElementById('hud-opp-hp-bars');
+      myContainer.innerHTML = '';
+      oppContainer.innerHTML = '';
 
+      for (let i = 1; i <= 10; i++) {
+        const seg1 = document.createElement('div');
+        seg1.className = `rounded-sm transition-all ${i <= me.hp ? 'bg-cyan-400 shadow-[0_0_8px_#22d3ee]' : 'bg-slate-800'}`;
+        myContainer.appendChild(seg1);
+
+        const seg2 = document.createElement('div');
+        seg2.className = `rounded-sm transition-all ${i <= opp.hp ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : 'bg-slate-800'}`;
+        oppContainer.appendChild(seg2);
+      }
+    }
+
+    let myAttackSeq = 0;
+
+    function performAttack() {
+      if (gamePhase !== 'playing') return;
+      const now = performance.now();
+      const cooldown = me.isRhvx0 ? 350 : 280;
+      if (now - me.lastAttackAt < cooldown) return;
+      me.lastAttackAt = now;
+      myAttackSeq++;
+
+      // Otočit se směrem k soupeři při útoku, pokud se hráč nehýbe
+      const dx = opp.x - me.x;
+      const dy = opp.y - me.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (me.isRhvx0) {
+        // TAJNÝ GIGANTICKÝ BLASTER (ONE-SHOT!)
+        me.angle = Math.atan2(dy, dx);
+        triggerBlasterEffect(me, opp, true);
+        triggerScreenShake();
+
+        // Paprsek má obrovský dosah přes celou arénu a okamžitě one-shotne soupeře
+        const damage = 10;
+        opp.hp = 0;
+        spawnFloatingText(opp.x, opp.y - 0.06, 'ONE-SHOT! -10 HP', '#fbbf24');
+        createExplosion(opp.x, opp.y, '#fbbf24', 45);
+        updateHudBars();
+        syncMyState(true);
+
+        setTimeout(() => {
+          if (gamePhase === 'playing') endDuel(true);
+        }, 420);
+
+      } else {
+        // KLASICKÁ DÝKA (10 hitů = 1 damage za zásah)
+        me.swingProgress = 1;
+        slashArcs.push({ x: me.x, y: me.y, angle: me.angle, alpha: 1, color: '#22d3ee' });
+
+        // Dosah dýky v normalizovaných souřadnicích
+        const daggerRange = 0.14;
+        let hitLanded = false;
+
+        if (dist <= daggerRange) {
+          hitLanded = true;
+          opp.hp = Math.max(0, opp.hp - 1);
+          spawnFloatingText(opp.x, opp.y - 0.05, '-1 HP', '#38bdf8');
+          createExplosion(opp.x, opp.y, '#38bdf8', 14);
+          updateHudBars();
+
+          if (opp.hp <= 0) {
+            syncMyState(true);
+            setTimeout(() => {
+              if (gamePhase === 'playing') endDuel(true);
+            }, 300);
+            return;
+          }
+        }
+
+        syncMyState(hitLanded);
+      }
+    }
+
+    function triggerBlasterEffect(shooter, target, isMine) {
+      blasterBeams.push({
+        x1: shooter.x,
+        y1: shooter.y,
+        x2: target.x,
+        y2: target.y,
+        alpha: 1,
+        color: isMine ? '#f59e0b' : '#a855f7'
+      });
+    }
+
+    async function syncMyState(forceHitSync = false) {
+      if (isBotMode || !firebaseReady || !activeMatchId || gamePhase !== 'playing') return;
+      const now = performance.now();
+      if (!forceHitSync && now - lastSyncTime < 65) return;
+      lastSyncTime = now;
+
+      const matchRef = doc(db, 'artifacts', appId, 'public', 'data', 'duel_matches', activeMatchId);
+      const oppSlot = playerSlot === 'p1' ? 'p2' : 'p1';
+      const payload = {
+        [`${playerSlot}.x`]: me.x,
+        [`${playerSlot}.y`]: me.y,
+        [`${playerSlot}.angle`]: me.angle,
+        [`${playerSlot}.attackSeq`]: myAttackSeq
+      };
+      if (forceHitSync) {
+        payload[`${oppSlot}.hp`] = opp.hp;
+      }
+      updateDoc(matchRef, payload).catch(() => {});
+    }
+
+    function endDuel(iWon) {
+      if (gamePhase === 'gameover') return;
+      gamePhase = 'gameover';
+      screenHud.classList.add('hidden');
+      screenGameover.classList.remove('hidden');
+
+      const emoji = document.getElementById('gameover-emoji');
+      const title = document.getElementById('gameover-title');
+      const desc = document.getElementById('gameover-desc');
+
+      if (iWon) {
+        emoji.textContent = me.isRhvx0 ? '☢️' : '🏆';
+        title.textContent = 'VÍTĚZSTVÍ!';
+        desc.textContent = me.isRhvx0
+          ? `Gigantický blaster hráče ${me.name} okamžitě vymazal soupeře ${opp.name} z arény!`
+          : `Zasadil jsi 10. smrtící zásah dýkou a porazil hráče ${opp.name}!`;
+      } else {
+        emoji.textContent = '💀';
+        title.textContent = 'PORÁŽKA!';
+        desc.textContent = opp.isRhvx0
+          ? `Hráč ${opp.name} vytáhl tajný gigantický blaster a one-shotnul tě!`
+          : `Hráč ${opp.name} tě udolal na 10 zásahů dýkou.`;
+      }
+    }
+
+    document.getElementById('btn-back-queue').addEventListener('click', () => {
+      if (unsubMatch) { unsubMatch(); unsubMatch = null; }
+      gamePhase = 'queue';
+      inQueue = false;
+      isBotMode = false;
+      activeMatchId = null;
+
+      btnQueue.textContent = 'QUEUE';
+      btnQueue.classList.add('from-cyan-500', 'to-blue-600');
+      btnQueue.classList.remove('from-amber-500', 'to-orange-600');
+      queueStatusText.textContent = 'Status: 0/2';
+      queueSubtext.textContent = 'Klikni na QUEUE pro vstup do online fronty';
+
+      screenGameover.classList.add('hidden');
+      screenHud.classList.add('hidden');
+      screenName.classList.add('hidden');
+      screenQueue.classList.remove('hidden');
+    });
+
+    // =========================================================================
+    // 6. OVLÁDÁNÍ: VIRTUÁLNÍ JOYSTICK (MOBIL + MYŠ) & KLÁVESNICE
+    // =========================================================================
+    const joystickZone = document.getElementById('joystick-zone');
+    const joystickKnob = document.getElementById('joystick-knob');
+    let joyTouchId = null;
+    let joyDraggingMouse = false;
+
+    function handleJoystickMove(clientX, clientY) {
+      const rect = joystickZone.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const maxRadius = rect.width * 0.36;
+
+      let dx = clientX - centerX;
+      let dy = clientY - centerY;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > maxRadius) {
+        dx = (dx / dist) * maxRadius;
+        dy = (dy / dist) * maxRadius;
+      }
+
+      joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+      joyVec.x = dx / maxRadius;
+      joyVec.y = dy / maxRadius;
+    }
+
+    function resetJoystick() {
+      joyTouchId = null;
+      joyDraggingMouse = false;
+      joyVec.x = 0;
+      joyVec.y = 0;
+      joystickKnob.style.transform = `translate(0px, 0px)`;
+    }
+
+    // Dotykové události pro mobil
+    joystickZone.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const t = e.changedTouches[0];
+      joyTouchId = t.identifier;
+      handleJoystickMove(t.clientX, t.clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (joyTouchId === null) return;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joyTouchId) {
+          handleJoystickMove(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+          break;
+        }
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joyTouchId) {
+          resetJoystick();
+          break;
+        }
+      }
+    });
+
+    // Ovládání joysticku myší na PC
+    joystickZone.addEventListener('mousedown', (e) => {
+      joyDraggingMouse = true;
+      handleJoystickMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (joyDraggingMouse) handleJoystickMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', () => {
+      if (joyDraggingMouse) resetJoystick();
+    });
+
+    // Tlačítko HIT (dotyk i klik)
+    const btnHit = document.getElementById('btn-hit');
+    btnHit.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      performAttack();
+    }, { passive: false });
+    btnHit.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      performAttack();
+    });
+
+    // Klávesnice pro PC
+    window.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+      if (e.code === 'Space' && gamePhase === 'playing') {
+        e.preventDefault();
+        performAttack();
+      }
+    });
+    window.addEventListener('keyup', (e) => {
+      keys[e.code] = false;
+    });
+
+    // =========================================================================
+    // 7. HERNÍ SMYČKA, POHYB, BOT AI A VYKRESLOVÁNÍ ARÉNY
+    // =========================================================================
+    let botAttackCooldown = 0;
+
+    function updateSimulation() {
+      if (gamePhase !== 'playing') return;
+
+      // Kombinace joysticku a klávesnice
+      let vx = joyVec.x;
+      let vy = joyVec.y;
+      if (keys['KeyW'] || keys['ArrowUp']) vy -= 1;
+      if (keys['KeyS'] || keys['ArrowDown']) vy += 1;
+      if (keys['KeyA'] || keys['ArrowLeft']) vx -= 1;
+      if (keys['KeyD'] || keys['ArrowRight']) vx += 1;
+
+      const mag = Math.hypot(vx, vy);
+      if (mag > 0.08) {
+        const normX = vx / Math.max(1, mag);
+        const normY = vy / Math.max(1, mag);
+        const speed = 0.0065;
+        me.x = Math.max(0.06, Math.min(0.94, me.x + normX * speed));
+        me.y = Math.max(0.14, Math.min(0.86, me.y + normY * speed));
+        me.angle = Math.atan2(normY, normX);
+        syncMyState(false);
+      }
+
+      if (me.swingProgress > 0) me.swingProgress = Math.max(0, me.swingProgress - 0.12);
+      if (opp.swingProgress > 0) opp.swingProgress = Math.max(0, opp.swingProgress - 0.12);
+
+      // Lokální AI Bota v rychlém testovacím režimu
+      if (isBotMode && opp.hp > 0 && me.hp > 0) {
+        const dx = me.x - opp.x;
+        const dy = me.y - opp.y;
+        const dist = Math.hypot(dx, dy);
+        opp.angle = Math.atan2(dy, dx);
+
+        if (dist > 0.11) {
+          opp.x += (dx / dist) * 0.0038;
+          opp.y += (dy / dist) * 0.0038;
+        } else {
+          if (botAttackCooldown <= 0) {
+            botAttackCooldown = 55; // cca 1 útok za vteřinu
+            opp.swingProgress = 1;
+            slashArcs.push({ x: opp.x, y: opp.y, angle: opp.angle, alpha: 1, color: '#fb7185' });
+            me.hp = Math.max(0, me.hp - 1);
+            spawnFloatingText(me.x, me.y - 0.05, '-1 HP', '#f43f5e');
+            createExplosion(me.x, me.y, '#f43f5e', 10);
+            updateHudBars();
+
+            if (me.hp <= 0) {
+              endDuel(false);
+            }
+          }
+        }
+        if (botAttackCooldown > 0) botAttackCooldown--;
+      }
+    }
+
+    function spawnFloatingText(nx, ny, text, color) {
+      floatingTexts.push({ x: nx, y: ny, text, color, alpha: 1 });
+    }
+
+    function createExplosion(nx, ny, color, count) {
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const spd = 0.002 + Math.random() * 0.008;
+        particles.push({
+          x: nx,
+          y: ny,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd,
+          alpha: 1,
+          color
+        });
+      }
+    }
+
+    function triggerScreenShake() {
+      document.body.classList.remove('shake-arena');
+      void document.body.offsetWidth;
+      document.body.classList.add('shake-arena');
+    }
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawFighter(fighter, isMe) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const px = fighter.x * w;
+      const py = fighter.y * h;
+      const baseRadius = Math.min(w, h) * 0.032;
+      const r = Math.max(16, Math.min(26, baseRadius));
+
+      ctx.save();
+      ctx.translate(px, py);
+
+      // Jméno a mini HP bar nad postavou
+      ctx.font = '800 12px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = fighter.isRhvx0 ? '#fbbf24' : (isMe ? '#67e8f9' : '#fda4af');
+      ctx.fillText(fighter.name, 0, -r - 16);
+
+      // Mini lišta životů nad postavou
+      const barW = 44;
+      const barH = 5;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillRect(-barW / 2, -r - 11, barW, barH);
+      ctx.fillStyle = fighter.isRhvx0 ? '#f59e0b' : (isMe ? '#22d3ee' : '#f43f5e');
+      ctx.fillRect(-barW / 2, -r - 11, barW * (Math.max(0, fighter.hp) / 10), barH);
+
+      // Rotace postavy a zbraně
+      ctx.rotate(fighter.angle);
+
+      if (fighter.isRhvx0) {
+        // =====================================================
+        // GIGANTICKÝ BLASTER PRO HRÁČE SE JMÉNEM "rhvx0"
+        // =====================================================
+        ctx.save();
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#f59e0b';
+        // Obří hlaveň blasteru
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.roundRect(r * 0.3, -12, r * 2.1, 24, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        // Zářící plazmové jádro uvnitř blasteru
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(r * 0.6, -5, r * 1.5, 10);
+        ctx.restore();
+      } else {
+        // =====================================================
+        // TAKTICKÁ DÝKA (10 HITŮ)
+        // =====================================================
+        const swingOffset = fighter.swingProgress > 0 ? Math.sin(fighter.swingProgress * Math.PI) * 1.1 : 0;
+        ctx.save();
+        ctx.rotate(swingOffset);
+        // Rukojeť
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(r * 0.7, -3, 8, 6);
+        // Čepel dýky
+        ctx.beginPath();
+        ctx.moveTo(r * 0.7 + 8, -4);
+        ctx.lineTo(r * 0.7 + 28, 0);
+        ctx.lineTo(r * 0.7 + 8, 4);
+        ctx.closePath();
+        ctx.fillStyle = isMe ? '#e0f2fe' : '#ffe4e6';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = isMe ? '#06b6d4' : '#f43f5e';
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Tělo bojovníka
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.fillStyle = fighter.isRhvx0 ? '#78350f' : (isMe ? '#0891b2' : '#be123c');
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = fighter.isRhvx0 ? '#f59e0b' : (isMe ? '#06b6d4' : '#f43f5e');
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = fighter.isRhvx0 ? '#fbbf24' : (isMe ? '#67e8f9' : '#fda4af');
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function renderLoop() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      updateSimulation();
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Kybernetická mřížka arény
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.07)';
+      ctx.lineWidth = 1;
+      const step = 44;
+      for (let x = 0; x < w; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y < h; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Středový kruh arény
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, Math.min(w, h) * 0.24, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.14)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      if (gamePhase === 'playing' || gamePhase === 'gameover') {
+        // Dosah dýky kolem hráče (jemný kruh, pokud nemá rhvx0 blaster)
+        if (!me.isRhvx0 && gamePhase === 'playing') {
+          ctx.beginPath();
+          ctx.arc(me.x * w, me.y * h, 0.14 * Math.min(w, h), 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.12)';
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        drawFighter(opp, false);
+        drawFighter(me, true);
+      }
+
+      // Animace švihu dýkou
+      for (let i = slashArcs.length - 1; i >= 0; i--) {
+        const s = slashArcs[i];
+        s.alpha -= 0.08;
+        if (s.alpha <= 0) { slashArcs.splice(i, 1); continue; }
+        ctx.save();
+        ctx.translate(s.x * w, s.y * h);
+        ctx.rotate(s.angle);
+        ctx.beginPath();
+        ctx.arc(0, 0, 44, -0.8, 0.8);
+        ctx.strokeStyle = s.color;
+        ctx.globalAlpha = s.alpha;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Animace GIGANTICKÉHO BLASTERU (rhvx0)
+      for (let i = blasterBeams.length - 1; i >= 0; i--) {
+        const b = blasterBeams[i];
+        b.alpha -= 0.04;
+        if (b.alpha <= 0) { blasterBeams.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = b.alpha;
+        ctx.strokeStyle = b.color;
+        ctx.shadowBlur = 35;
+        ctx.shadowColor = b.color;
+        ctx.lineWidth = 28 * b.alpha;
+        ctx.beginPath();
+        ctx.moveTo(b.x1 * w, b.y1 * h);
+        ctx.lineTo(b.x2 * w, b.y2 * h);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 10 * b.alpha;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Částice zásahů
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.03;
+        if (p.alpha <= 0) { particles.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Plovoucí texty poškození
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y -= 0.0015;
+        ft.alpha -= 0.022;
+        if (ft.alpha <= 0) { floatingTexts.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = ft.alpha;
+        ctx.font = '900 15px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x * w, ft.y * h);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    initFirebase();
+    requestAnimationFrame(renderLoop);
+  </script>
 </body>
 </html>
 ```
