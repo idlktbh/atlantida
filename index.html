@@ -1,437 +1,260 @@
 <!DOCTYPE html>
-<html lang="cs">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>1v1 Duel Arena – Online Matchmaking</title>
+<html lang="cs"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>DAGGER DUEL 1v1</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-
-:root {
-  --bg: #030712;
-  --surface: #111827;
-  --border: #374151;
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --accent: #ec4899;
-  --danger: #ef4444;
-  --success: #10b981;
-  --text: #f9fafb;
-  --muted: #9ca3af;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-}
-
-.wrap {
-  width: 100%;
-  max-width: 800px;
-  height: 100vh;
-  max-height: 600px;
-  background: var(--surface);
-  border: 2px solid var(--border);
-  border-radius: 24px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  position: relative;
-  overflow: hidden;
-}
-
-.screen {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-  text-align: center;
-  display: none;
-}
-.screen.active { display: flex; }
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, #818cf8, #ec4899);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-p.sub { color: var(--muted); margin-bottom: 30px; font-size: 1.05rem; }
-
-.btn {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 16px 36px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-}
-.btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
-
-input[type="text"] {
-  background: #1f2937;
-  border: 2px solid var(--border);
-  padding: 14px 20px;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 1.1rem;
-  width: 100%;
-  max-width: 320px;
-  margin-bottom: 20px;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.2s;
-}
-input[type="text"]:focus { border-color: var(--primary); }
-
-.status-box {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--accent);
-  margin-bottom: 15px;
-  font-family: monospace;
-}
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255,255,255,0.1);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 25px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-#game-container {
-  flex: 1;
-  position: relative;
-  width: 100%;
-  background: #0b0f19;
-  overflow: hidden;
-  display: none;
-}
-#game-container.active { display: block; }
-
-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.hud {
-  position: absolute;
-  top: 15px;
-  left: 20px;
-  right: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  pointer-events: none;
-  background: rgba(17, 24, 39, 0.8);
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-}
-
-.controls-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 160px;
-  pointer-events: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 30px;
-}
-.joystick-area {
-  width: 110px;
-  height: 110px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  position: relative;
-  pointer-events: auto;
-  touch-action: none;
-}
-.joystick-knob {
-  width: 50px;
-  height: 50px;
-  background: var(--primary);
-  border-radius: 50%;
-  position: absolute;
-  top: 30px;
-  left: 30px;
-  box-shadow: 0 0 15px var(--primary);
-  transition: transform 0.05s linear;
-}
-.hit-btn-mobile {
-  width: 90px;
-  height: 90px;
-  background: var(--danger);
-  border: none;
-  border-radius: 50%;
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.1rem;
-  cursor: pointer;
-  pointer-events: auto;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-}
-.hit-btn-mobile:active { transform: scale(0.92); }
-</style>
-</head>
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;touch-action:none}
+body{margin:0;height:100vh;height:100dvh;overflow:hidden;background:#030712;color:#f8fafc;font-family:Inter,system-ui,sans-serif;font-weight:700}
+canvas{position:fixed;inset:0;width:100%;height:100%}
+.scr{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.hide{display:none!important}
+h1{font-size:44px;font-weight:900;margin:8px 0 22px;text-shadow:0 0 22px #06b6d4}
+h2{font-size:26px;font-weight:900;margin:6px 0}
+.tag{font:800 11px monospace;letter-spacing:.2em;color:#22d3ee;border:1px solid #06b6d466;border-radius:99px;padding:4px 12px}
+.btn{font-family:inherit;font-size:20px;font-weight:900;color:#fff;border:2px solid #67e8f9;border-radius:16px;background:linear-gradient(90deg,#06b6d4,#2563eb);padding:18px 40px;cursor:pointer;box-shadow:0 0 30px #06b6d480}
+.btn.wait{background:linear-gradient(90deg,#f59e0b,#ea580c);border-color:#fcd34d}
+.btn:disabled{opacity:.4}
+.st{font:800 20px monospace;color:#67e8f9;margin-top:18px}.sub{font-size:12px;color:#94a3b8;margin-top:6px;max-width:320px}
+.card{background:#020617eb;border:1px solid #06b6d466;border-radius:24px;padding:24px;max-width:380px;width:100%}
+.card p{font-size:12px;color:#94a3b8;margin:0 0 6px}
+input{width:100%;padding:14px;border-radius:12px;border:2px solid #334155;background:#0f172a;color:#fff;font-family:inherit;font-size:18px;font-weight:800;text-align:center;margin:12px 0;user-select:text;-webkit-user-select:text;touch-action:auto}
+input:focus{outline:none;border-color:#22d3ee}
+.badge{font:800 12px monospace;color:#fcd34d;border:1px solid #fbbf2499;background:#f59e0b26;border-radius:12px;padding:8px;margin-bottom:12px}
+.ok{width:100%;padding:16px;font-size:16px;color:#022;background:linear-gradient(90deg,#10b981,#06b6d4)}
+#wait{font:800 12px monospace;color:#fcd34d;margin-top:12px}
+#hud{position:fixed;inset:0;z-index:4;pointer-events:none}
+.bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:min(96vw,860px);display:flex;gap:12px;align-items:center;background:#020617cc;border:1px solid #1e293b;border-radius:16px;padding:8px 14px}
+.side{flex:1;min-width:0;font-size:13px}.side.r{text-align:right}
+.row{display:flex;justify-content:space-between;margin-bottom:4px;gap:8px}.row span:first-child,.r .row span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;height:10px}.seg i{background:#1e293b;border-radius:2px}.seg i.on{background:#22d3ee;box-shadow:0 0 8px #22d3ee}.r .seg i.on{background:#f43f5e;box-shadow:0 0 8px #f43f5e}
+.vs{font:800 12px monospace;color:#64748b}
+#joy{position:absolute;left:16px;bottom:20px;width:132px;height:132px;border-radius:50%;background:#0f172a99;border:2px solid #06b6d459;display:flex;align-items:center;justify-content:center;pointer-events:auto}
+#knob{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#22d3ee,#2563eb);border:2px solid #fffc;pointer-events:none}
+#hit{position:absolute;right:16px;bottom:20px;width:116px;height:116px;border-radius:50%;border:4px solid #fda4af;background:linear-gradient(135deg,#f43f5e,#b91c1c);color:#fff;font-family:inherit;font-weight:900;font-size:15px;pointer-events:auto;box-shadow:0 0 30px #f43f5ea6;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+#hit span:first-child{font-size:28px}#hit:active{transform:scale(.92)}
+#hit.bl{background:linear-gradient(135deg,#fbbf24,#ea580c,#7e22ce);border-color:#fde68a;box-shadow:0 0 40px #f59e0be6}
+#s-over{background:#020617d9;backdrop-filter:blur(6px);z-index:6}
+.pc{display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font:600 11px monospace;color:#94a3b8;background:#020617b3;border:1px solid #1e293b;border-radius:12px;padding:6px 12px}
+@media(min-width:900px){.pc{display:block}}
+@keyframes sh{0%,100%{transform:none}25%{transform:translate(-8px,6px)}50%{transform:translate(8px,-6px)}75%{transform:translate(-5px,-4px)}}
+body.shake{animation:sh .35s}
+</style></head>
 <body>
+<canvas id="cv"></canvas>
 
-<div class="wrap">
-  <div id="screen-queue" class="screen active">
-    <h1>1v1 DUEL ARENA</h1>
-    <p class="sub">Zadej své jméno, vstup do fronty a utkej se v souboji na 10 hitů!</p>
-    <input type="text" id="username-input" placeholder="Zadej své jméno..." value="Hráč1" maxlength="15">
-    <button class="btn" onclick="startQueue()">QUEUE</button>
-  </div>
-
-  <div id="screen-matching" class="screen">
-    <h1>HLEDÁNÍ SOUPEŘE</h1>
-    <div class="spinner"></div>
-    <div class="status-box" id="status-text">STATUS: 1/2</div>
-    <p class="sub">Čekáme na připojení druhého hráče v síti...</p>
-    <button class="btn" style="background:#374151; padding:10px 20px; font-size:0.9rem;" onclick="cancelQueue()">Zrušit</button>
-  </div>
-
-  <div id="screen-game" class="screen" style="padding:0;">
-    <div id="game-container">
-      <div class="hud">
-        <span id="hud-p1">Vy: 10 HP</span>
-        <span id="hud-vs">VS</span>
-        <span id="hud-p2">Soupeř: 10 HP</span>
-      </div>
-      <canvas id="canvas"></canvas>
-
-      <div class="controls-overlay">
-        <div id="joystick" class="joystick-area">
-          <div id="knob" class="joystick-knob"></div>
-        </div>
-        <button class="hit-btn-mobile" onclick="triggerHit()">ÚTOK</button>
-      </div>
-    </div>
-  </div>
+<div id="s-queue" class="scr">
+  <span class="tag">1v1 ONLINE ARENA</span><h1>DAGGER DUEL</h1>
+  <button id="btn-q" class="btn" disabled>QUEUE</button>
+  <div id="st" class="st">Připojuji…</div><div id="sub" class="sub"></div>
 </div>
 
-<script>
-let canvas, ctx;
-let keys = {};
-let joystickActive = false;
-let joystickVector = { x: 0, y: 0 };
-let player = {};
-let opponent = {};
-let isRhvx0 = false;
+<div id="s-name" class="scr hide"><div class="card">
+  <span class="tag" style="color:#6ee7b7;border-color:#10b98199">Status: 2/2 • SOUPEŘ NALEZEN</span>
+  <h2>Zadej herní jméno</h2><p>Souboj na <b style="color:#67e8f9">10 hitů dýkou</b>.</p>
+  <input id="nick" maxlength="16" placeholder="Tvoje přezdívka...">
+  <div id="badge" class="badge hide">☢️ KÓD [rhvx0] • GIGANTICKÝ ONE-SHOT BLASTER!</div>
+  <button id="btn-ok" class="btn ok">PŘIPRAVIT SE DO DUELU</button>
+  <div id="wait" class="hide">⏳ Čekám na jméno soupeře…</div>
+</div></div>
 
-function startQueue() {
-  const name = document.getElementById('username-input').value.trim() || 'Neznámý';
-  document.getElementById('screen-queue').classList.remove('active');
-  document.getElementById('screen-matching').classList.add('active');
+<div id="hud" class="hide">
+  <div class="bar">
+    <div class="side"><div class="row"><span id="n1">Ty</span><span id="t1">10/10 HP</span></div><div class="seg" id="b1"></div></div>
+    <span class="vs">VS</span>
+    <div class="side r"><div class="row"><span id="t2">10/10 HP</span><span id="n2">Soupeř</span></div><div class="seg" id="b2"></div></div>
+  </div>
+  <div id="joy"><i id="knob"></i></div>
+  <div class="pc">WASD / šipky = pohyb • mezerník = útok</div>
+  <button id="hit"><span id="hi">🗡️</span><span id="hl">HIT</span></button>
+</div>
 
-  let count = 1;
-  document.getElementById('status-text').textContent = `STATUS: ${count}/2`;
+<div id="s-over" class="scr hide"><div class="card">
+  <div id="go-e" style="font-size:54px">🏆</div><h2 id="go-t">VÍTĚZSTVÍ!</h2>
+  <p id="go-d" style="font-size:14px;color:#cbd5e1;margin:8px 0 20px"></p>
+  <button id="btn-back" class="btn ok">ZPĚT DO QUEUE</button>
+</div></div>
 
-  localStorage.setItem('duel_queue_player', JSON.stringify({ name, time: Date.now() }));
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import{getAuth,signInAnonymously}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import{getDatabase,ref,set,update,remove,onValue,runTransaction,onDisconnect,push,increment}from"https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-  const matchInterval = setInterval(() => {
-    const otherPlayerRaw = localStorage.getItem('duel_queue_player');
-    if (otherPlayerRaw) {
-      const pData = JSON.parse(otherPlayerRaw);
-      if (pData.name !== name && Date.now() - pData.time < 10000) {
-        clearInterval(matchInterval);
-        count = 2;
-        document.getElementById('status-text').textContent = `STATUS: ${count}/2`;
-        setTimeout(() => launchGame(name, pData.name, true), 1000);
-        return;
-      }
-    }
+// ===== SEM VLOŽ SVŮJ FIREBASE CONFIG (návod je v odpovědi v chatu) =====
+const FIREBASE_CONFIG={apiKey:"",authDomain:"",databaseURL:"",projectId:"",appId:""};
+// =======================================================================
 
-    count++;
-    if (count > 2) count = 2;
-    document.getElementById('status-text').textContent = `STATUS: ${count}/2`;
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.round(n),rnd2=n=>Math.round(n*100)/100,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const W=1000,H=560,RANGE=125,SPEED=380,CD=300,STALE=20000;   // logická aréna 1000x560 = stejná na všech zařízeních
+let db,uid,off=0,phase='queue',mid=null,slot,oSlot,queued=false,joining=false,hb,nameT,subs=[],mySeq=0,lastAtk=0,lastSend=0,mv=false,leftWin=false,DT=0;
+const me={x:150,y:280,a:0,hp:10,name:'',bl:false,sw:0};
+const op={x:850,y:280,a:Math.PI,hp:10,name:'',bl:false,sw:0,tx:850,ty:280,seq:0};
+const fx={slash:[],beam:[],text:[]},joy={x:0,y:0},keys={};
+const now=()=>Date.now()+off;                              // čas serveru (nezávislý na hodinách telefonu)
+const setStatus=(t,s)=>{$('st').textContent=t;if(s!==undefined)$('sub').textContent=s};
+const show=id=>['s-queue','s-name','hud','s-over'].forEach(s=>$(s).classList.toggle('hide',s!==id));
+const mref=p=>ref(db,`matches/${mid}/${p}`);
+const clearSubs=()=>{subs.splice(0).forEach(f=>f());clearInterval(hb);clearTimeout(nameT)};
+for(const id of['b1','b2'])$(id).innerHTML='<i></i>'.repeat(10);
 
-    if (count === 2) {
-      clearInterval(matchInterval);
-      setTimeout(() => launchGame(name, name === 'BotTest' ? 'Hráč2' : 'Bojovník AI', false), 1200);
-    }
-  }, 1500);
+// ---------- připojení ----------
+async function init(){
+  if(!FIREBASE_CONFIG.databaseURL){setStatus('Chybí FIREBASE_CONFIG','Vlož svůj Firebase config na začátek skriptu (návod je v chatu).');return}
+  try{
+    const app=initializeApp(FIREBASE_CONFIG);
+    uid=(await signInAnonymously(getAuth(app))).user.uid;
+    db=getDatabase(app);
+    onValue(ref(db,'.info/serverTimeOffset'),s=>off=s.val()||0);
+    onValue(ref(db,'queue/waiting'),s=>{const v=s.val();if(phase==='queue'&&!queued)setStatus(`Status: ${v&&now()-v.ts<STALE?1:0}/2`)});
+    resetQueueUI();$('btn-q').disabled=false;
+  }catch(e){setStatus('Online se nepodařilo připojit',String(e.message||e))}
 }
+function resetQueueUI(msg){queued=false;$('btn-q').textContent='QUEUE';$('btn-q').classList.remove('wait');setStatus('Status: 0/2',msg||'Klikni na QUEUE a najdeme ti živého soupeře')}
 
-function cancelQueue() {
-  document.getElementById('screen-matching').classList.remove('active');
-  document.getElementById('screen-queue').classList.add('active');
-}
-
-function launchGame(myName, oppName, isRealP2) {
-  document.getElementById('screen-matching').classList.remove('active');
-  document.getElementById('screen-game').classList.add('active');
-
-  canvas = document.getElementById('canvas');
-  ctx = canvas.getContext('2d');
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  isRhvx0 = (myName.toLowerCase() === 'rhvx0');
-
-  player = {
-    x: 150, y: 300,
-    hp: 10, maxHp: 10,
-    name: myName,
-    weapon: isRhvx0 ? 'BLASTER' : 'Dýka',
-    color: '#6366f1'
-  };
-
-  opponent = {
-    x: 650, y: 300,
-    hp: 10, maxHp: 10,
-    name: oppName,
-    weapon: 'Dýka',
-    color: '#ec4899'
-  };
-
-  setupInputs();
-  requestAnimationFrame(gameLoop);
-}
-
-function resizeCanvas() {
-  canvas.width = canvas.parentElement.clientWidth;
-  canvas.height = canvas.parentElement.clientHeight;
-}
-
-function setupInputs() {
-  window.addEventListener('keydown', e => keys[e.code] = true);
-  window.addEventListener('keyup', e => keys[e.code] = false);
-
-  const joystick = document.getElementById('joystick');
-  const knob = document.getElementById('knob');
-  let center = { x: 0, y: 0 };
-  let touchId = null;
-
-  joystick.addEventListener('pointerdown', e => {
-    joystickActive = true;
-    touchId = e.pointerId;
-    const rect = joystick.getBoundingClientRect();
-    center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-    updateJoystick(e.clientX, e.clientY);
-  });
-
-  window.addEventListener('pointermove', e => {
-    if (!joystickActive || e.pointerId !== touchId) return;
-    updateJoystick(e.clientX, e.clientY);
-  });
-
-  window.addEventListener('pointerup', e => {
-    if (e.pointerId === touchId) {
-      joystickActive = false;
-      joystickVector = { x: 0, y: 0 };
-      knob.style.transform = `translate(0px, 0px)`;
+// ---------- matchmaking: jeden "čekací slot", obsazuje se transakcí = žádné dva hráči nezískají stejného soupeře ----------
+$('btn-q').onclick=()=>{if(!joining)queued?leaveQueue():joinQueue()};
+async function joinQueue(){
+  joining=true;clearSubs();queued=true;
+  $('btn-q').textContent='V QUEUE… (zrušit)';$('btn-q').classList.add('wait');setStatus('Status: 1/2','Hledám soupeře v reálném čase…');
+  try{
+    await remove(ref(db,'invites/'+uid));
+    const wref=ref(db,'queue/waiting');let other=null;
+    await runTransaction(wref,c=>{other=null;if(c&&c.uid!==uid&&now()-c.ts<STALE){other=c.uid;return null}return{uid,ts:now()}});
+    if(other){                                            // našel jsem čekajícího hráče → vytvořím zápas
+      const m=push(ref(db,'matches'));
+      await set(m,{p1:{hp:10,x:150,y:280,a:0},p2:{hp:10,x:850,y:280,a:Math.PI}});
+      await set(ref(db,'invites/'+other),{mid:m.key});
+      enterNaming(m.key,'p2');
+    }else{                                                // čekám; heartbeat drží slot "živý"
+      let miss=0;
+      hb=setInterval(()=>runTransaction(wref,c=>c&&c.uid===uid?{uid,ts:now()}:undefined).then(r=>{miss=r.committed?0:miss+1;if(miss>=2&&queued&&!joining)joinQueue()}).catch(()=>{}),8000);
+      subs.push(onValue(ref(db,'invites/'+uid),s=>{const v=s.val();if(v&&queued){remove(s.ref);enterNaming(v.mid,'p1')}}));
     }
-  });
+  }catch(e){resetQueueUI('Chyba: '+(e.message||e))}
+  joining=false;
+}
+function leaveQueue(){clearSubs();resetQueueUI();runTransaction(ref(db,'queue/waiting'),c=>c&&c.uid===uid?null:undefined).catch(()=>{})}
 
-  function updateJoystick(clientX, clientY) {
-    let dx = clientX - center.x;
-    let dy = clientY - center.y;
-    let dist = Math.hypot(dx, dy);
-    let maxDist = 35;
-
-    if (dist > maxDist) {
-      dx = (dx / dist) * maxDist;
-      dy = (dy / dist) * maxDist;
-    }
-
-    knob.style.transform = `translate(${dx}px, ${dy}px)`;
-    joystickVector = { x: dx / maxDist, y: dy / maxDist };
+// ---------- jméno + start zápasu ----------
+function enterNaming(m,s){
+  clearSubs();queued=false;mid=m;slot=s;oSlot=s==='p1'?'p2':'p1';phase='naming';leftWin=false;
+  me.x=s==='p1'?150:850;me.a=s==='p1'?0:Math.PI;op.x=op.tx=s==='p1'?850:150;op.a=s==='p1'?Math.PI:0;
+  me.hp=op.hp=10;op.seq=0;mySeq=0;me.sw=op.sw=0;
+  show('s-name');$('nick').value='';$('badge').classList.add('hide');$('wait').classList.add('hide');
+  onDisconnect(mref(slot+'/left')).set(true);
+  subs.push(onValue(ref(db,'matches/'+mid),onMatch));
+  nameT=setTimeout(()=>{if(phase==='naming')abort('Soupeř se nepřipojil. Zkus to znovu.')},45000);
+}
+function abort(msg){const m=mid;clearSubs();if(m)onDisconnect(ref(db,`matches/${m}/${slot}/left`)).cancel();phase='queue';mid=null;resetQueueUI(msg);show('s-queue')}
+$('nick').oninput=e=>$('badge').classList.toggle('hide',e.target.value.trim()!=='rhvx0');
+$('btn-ok').onclick=()=>{
+  const n=$('nick').value.trim().slice(0,16)||'Bojovník';me.name=n;me.bl=n==='rhvx0';
+  update(mref(slot),{name:n,bl:me.bl,ready:true});$('wait').classList.remove('hide');
+};
+const claim=w=>runTransaction(ref(db,`matches/${mid}/winner`),c=>c||w).catch(()=>{});
+function onMatch(s){
+  const d=s.val();if(!d||phase==='over'||phase==='queue')return;
+  const m=d[slot],o=d[oSlot];if(!m||!o)return;
+  if(o.left){if(phase==='naming'){abort('Soupeř odešel. Zkus to znovu.');return}leftWin=true;claim(slot)}
+  if(phase==='naming'&&m.ready&&o.ready){op.name=o.name||'Soupeř';op.bl=!!o.bl;startArena()}
+  if(phase==='play'){
+    op.tx=o.x;op.ty=o.y;op.a=o.a;
+    if((o.seq||0)>op.seq){op.seq=o.seq;fxSwing(op,me)}
+    if(m.hp<me.hp){text(me,'-'+(me.hp-m.hp));shake()}
+    me.hp=m.hp;op.hp=o.hp;hud();
+    if(o.hp<=0)claim(slot);else if(m.hp<=0)claim(oSlot);   // vítěze určí první zápis (transakce) → oba vidí totéž
+    if(d.winner)finish(d.winner);
   }
 }
-
-function triggerHit() {
-  let dist = Math.hypot(player.x - opponent.x, player.y - opponent.y);
-  if (dist < 90 || isRhvx0) {
-    if (isRhvx0) {
-      opponent.hp = 0;
-    } else {
-      opponent.hp = Math.max(0, opponent.hp - 1);
-    }
-  }
+function startArena(){
+  clearTimeout(nameT);phase='play';show('hud');
+  $('n1').textContent=(me.bl?'☢️ ':'🗡️ ')+me.name;$('n2').textContent=(op.bl?'☢️ ':'🗡️ ')+op.name;
+  $('hi').textContent=me.bl?'🔫':'🗡️';$('hl').textContent=me.bl?'BLAST':'HIT';$('hit').classList.toggle('bl',me.bl);hud();
 }
-
-function gameLoop() {
-  let speed = 4;
-  if (keys['KeyW'] || keys['ArrowUp'] || joystickVector.y < -0.2) player.y -= speed;
-  if (keys['KeyS'] || keys['ArrowDown'] || joystickVector.y > 0.2) player.y += speed;
-  if (keys['KeyA'] || keys['ArrowLeft'] || joystickVector.x < -0.2) player.x -= speed;
-  if (keys['KeyD'] || keys['ArrowRight'] || joystickVector.x > 0.2) player.x += speed;
-
-  player.x = Math.max(30, Math.min(canvas.width - 30, player.x));
-  player.y = Math.max(40, Math.min(canvas.height - 40, player.y));
-
-  if (Math.random() < 0.03) {
-    if (opponent.x > player.x) opponent.x -= 2; else opponent.x += 2;
-    if (opponent.y > player.y) opponent.y -= 2; else opponent.y += 2;
-  }
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = player.color;
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, 22, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.font = '12px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(player.name + ` (${player.weapon})`, player.x, player.y - 30);
-
-  ctx.fillStyle = opponent.color;
-  ctx.beginPath();
-  ctx.arc(opponent.x, opponent.y, 22, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#fff';
-  ctx.fillText(opponent.name, opponent.x, opponent.y - 30);
-
-  document.getElementById('hud-p1').textContent = `${player.name}: ${player.hp} HP`;
-  document.getElementById('hud-p2').textContent = `${opponent.name}: ${opponent.hp} HP`;
-
-  if (player.hp > 0 && opponent.hp > 0) {
-    requestAnimationFrame(gameLoop);
-  } else {
-    ctx.fillStyle = 'rgba(0,0,0,0.8)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 28px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(player.hp <= 0 ? 'PROHRÁL JSI!' : 'VÍTĚZSTVÍ!', canvas.width / 2, canvas.height / 2);
-  }
+function hud(){for(const[i,f]of[[1,me],[2,op]]){$('t'+i).textContent=Math.max(0,f.hp)+'/10 HP';[...$('b'+i).children].forEach((c,k)=>c.classList.toggle('on',k<f.hp))}}
+function finish(w){
+  if(phase==='over')return;phase='over';const win=w===slot,m=mid;
+  onDisconnect(ref(db,`matches/${m}/${slot}/left`)).cancel();
+  show('s-over');
+  $('go-e').textContent=win?(me.bl?'☢️':'🏆'):'💀';$('go-t').textContent=win?'VÍTĚZSTVÍ!':'PORÁŽKA!';
+  $('go-d').textContent=win?(leftWin?'Soupeř opustil hru.':me.bl?`Gigantický blaster hráče ${me.name} okamžitě vymazal soupeře ${op.name}!`:`Porazil jsi hráče ${op.name} – 10 zásahů dýkou!`)
+    :(op.bl?`Hráč ${op.name} vytáhl tajný blaster a one-shotnul tě!`:`Hráč ${op.name} tě udolal na 10 zásahů.`);
+  if(win)setTimeout(()=>remove(ref(db,'matches/'+m)).catch(()=>{}),8000);   // uklidí zápas z databáze
 }
+$('btn-back').onclick=()=>{clearSubs();phase='queue';mid=null;resetQueueUI();show('s-queue')};
+
+// ---------- boj ----------
+function attack(){
+  if(phase!=='play')return;const t=performance.now();if(t-lastAtk<(me.bl?400:CD))return;lastAtk=t;
+  const dx=op.x-me.x,dy=op.y-me.y;
+  if(me.bl){me.a=Math.atan2(dy,dx);fx.beam.push({x1:me.x,y1:me.y,x2:op.x,y2:op.y,al:1,c:'#f59e0b'});shake();text(op,'ONE-SHOT!','#fbbf24');update(mref(oSlot),{hp:0})}
+  else{me.sw=1;fx.slash.push({x:me.x,y:me.y,a:me.a,al:1,c:'#22d3ee'});
+    if(Math.hypot(dx,dy)<=RANGE){text(op,'-1','#38bdf8');update(mref(oSlot),{hp:increment(-1)})}}   // atomický zásah, žádné přepisování HP
+  update(mref(slot),{seq:++mySeq,x:rnd(me.x),y:rnd(me.y),a:rnd2(me.a)}).catch(()=>{});
+}
+function fxSwing(f,target){
+  if(f.bl)fx.beam.push({x1:f.x,y1:f.y,x2:target.x,y2:target.y,al:1,c:'#a855f7'});
+  else{f.sw=1;fx.slash.push({x:f.x,y:f.y,a:f.a,al:1,c:'#fb7185'})}
+}
+const text=(f,t,c)=>fx.text.push({x:f.x,y:f.y-40,t,c:c||'#f43f5e',al:1});
+const shake=()=>{document.body.classList.remove('shake');void document.body.offsetWidth;document.body.classList.add('shake')};
+
+// ---------- ovládání ----------
+const jz=$('joy'),jk=$('knob');let jid=null;
+const jmove=e=>{const r=jz.getBoundingClientRect(),mr=r.width*.36;let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const d=Math.hypot(dx,dy);if(d>mr){dx*=mr/d;dy*=mr/d}jk.style.transform=`translate(${dx}px,${dy}px)`;joy.x=dx/mr;joy.y=dy/mr};
+jz.onpointerdown=e=>{jid=e.pointerId;jz.setPointerCapture(jid);jmove(e)};
+jz.onpointermove=e=>{if(e.pointerId===jid)jmove(e)};
+jz.onpointerup=jz.onpointercancel=()=>{jid=null;joy.x=joy.y=0;jk.style.transform=''};
+$('hit').onpointerdown=e=>{e.preventDefault();attack()};
+addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space'&&phase==='play'){e.preventDefault();attack()}});
+addEventListener('keyup',e=>keys[e.code]=false);
+
+// ---------- smyčka (pohyb podle času, ne podle snímků → stejná rychlost na 60 i 120 Hz) ----------
+const cv=$('cv'),cx=cv.getContext('2d');let last=performance.now();
+function frame(t){
+  DT=Math.min(.05,(t-last)/1000);last=t;
+  if(phase==='play'){
+    let vx=joy.x,vy=joy.y;
+    if(keys.KeyW||keys.ArrowUp)vy--;if(keys.KeyS||keys.ArrowDown)vy++;if(keys.KeyA||keys.ArrowLeft)vx--;if(keys.KeyD||keys.ArrowRight)vx++;
+    const mg=Math.hypot(vx,vy),moving=mg>.1;
+    if(moving){const k=1/Math.max(1,mg);me.x=clamp(me.x+vx*k*SPEED*DT,40,W-40);me.y=clamp(me.y+vy*k*SPEED*DT,40,H-40);me.a=Math.atan2(vy,vx)}
+    if((moving&&t-lastSend>66)||(!moving&&mv)){lastSend=t;update(mref(slot),{x:rnd(me.x),y:rnd(me.y),a:rnd2(me.a)}).catch(()=>{})}
+    mv=moving;
+    const k=Math.min(1,DT*14);op.x+=(op.tx-op.x)*k;op.y+=(op.ty-op.y)*k;   // plynulé dorovnání pozice soupeře
+  }
+  me.sw=Math.max(0,me.sw-DT*7);op.sw=Math.max(0,op.sw-DT*7);
+  draw();requestAnimationFrame(frame);
+}
+function draw(){
+  const dpr=devicePixelRatio||1,w=innerWidth,h=innerHeight;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+  const sc=Math.min(w/W,h/H);
+  cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,cv.width,cv.height);
+  cx.setTransform(dpr*sc,0,0,dpr*sc,dpr*(w-W*sc)/2,dpr*(h-H*sc)/2);
+  cx.strokeStyle='#06b6d41f';cx.lineWidth=1;
+  for(let x=0;x<=W;x+=50){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke()}
+  for(let y=0;y<=H;y+=50){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke()}
+  cx.strokeStyle='#06b6d488';cx.lineWidth=3;cx.strokeRect(0,0,W,H);
+  cx.beginPath();cx.arc(W/2,H/2,130,0,7);cx.strokeStyle='#06b6d424';cx.stroke();
+  if(phase==='play'||phase==='over'){
+    if(phase==='play'&&!me.bl){cx.beginPath();cx.arc(me.x,me.y,RANGE,0,7);cx.strokeStyle='#22d3ee20';cx.setLineDash([6,6]);cx.stroke();cx.setLineDash([])}
+    fighter(op,false);fighter(me,true);
+  }
+  for(const s of fx.slash){s.al-=DT*5;cx.save();cx.translate(s.x,s.y);cx.rotate(s.a);cx.globalAlpha=Math.max(0,s.al);cx.beginPath();cx.arc(0,0,50,-.8,.8);cx.strokeStyle=s.c;cx.lineWidth=5;cx.stroke();cx.restore()}
+  for(const b of fx.beam){b.al-=DT*2.5;cx.save();cx.globalAlpha=Math.max(0,b.al);cx.strokeStyle=b.c;cx.shadowBlur=35;cx.shadowColor=b.c;cx.lineWidth=28*b.al;cx.beginPath();cx.moveTo(b.x1,b.y1);cx.lineTo(b.x2,b.y2);cx.stroke();cx.strokeStyle='#fff';cx.lineWidth=10*b.al;cx.stroke();cx.restore()}
+  for(const t of fx.text){t.al-=DT*1.4;t.y-=DT*40;cx.save();cx.globalAlpha=Math.max(0,t.al);cx.font='900 18px Inter,sans-serif';cx.textAlign='center';cx.fillStyle=t.c;cx.fillText(t.t,t.x,t.y);cx.restore()}
+  for(const k in fx)fx[k]=fx[k].filter(e=>e.al>0);
+}
+function fighter(f,isMe){
+  const col=f.bl?'#fbbf24':isMe?'#67e8f9':'#fda4af',R=22;
+  cx.save();cx.translate(f.x,f.y);
+  cx.font='800 14px Inter,sans-serif';cx.textAlign='center';cx.fillStyle=col;cx.fillText(f.name,0,-R-18);
+  cx.fillStyle='#0f172ad9';cx.fillRect(-24,-R-12,48,6);cx.fillStyle=f.bl?'#f59e0b':isMe?'#22d3ee':'#f43f5e';cx.fillRect(-24,-R-12,48*Math.max(0,f.hp)/10,6);
+  cx.rotate(f.a);
+  if(f.bl){cx.shadowBlur=20;cx.shadowColor='#f59e0b';cx.fillStyle='#1e293b';cx.strokeStyle='#fbbf24';cx.lineWidth=2.5;cx.beginPath();cx.roundRect(R*.3,-12,R*2.1,24,6);cx.fill();cx.stroke();cx.fillStyle='#f59e0b';cx.fillRect(R*.6,-5,R*1.5,10)}
+  else{cx.save();cx.rotate(f.sw>0?Math.sin(f.sw*Math.PI)*1.1:0);cx.fillStyle='#475569';cx.fillRect(R*.7,-3,8,6);cx.beginPath();cx.moveTo(R*.7+8,-4);cx.lineTo(R*.7+30,0);cx.lineTo(R*.7+8,4);cx.closePath();cx.fillStyle=isMe?'#e0f2fe':'#ffe4e6';cx.shadowBlur=10;cx.shadowColor=isMe?'#06b6d4':'#f43f5e';cx.fill();cx.restore()}
+  cx.beginPath();cx.arc(0,0,R,0,7);cx.fillStyle=f.bl?'#78350f':isMe?'#0891b2':'#be123c';cx.shadowBlur=16;cx.shadowColor=col;cx.fill();cx.lineWidth=3;cx.strokeStyle=col;cx.stroke();cx.restore();
+}
+init();requestAnimationFrame(frame);
 </script>
-
-</body>
-</html>
+</body></html>
